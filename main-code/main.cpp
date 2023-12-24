@@ -124,7 +124,14 @@ void generate_basic_table(int x, int y){
     print_table(table);
 }
 int main() {
-    generate_basic_table(4,5);
+    cout<<"basic table|     width: ";
+    int x;
+    cin>>x;
+    cout<<"basic table|     height: ";
+    int y;
+    cin>>y;
+    generate_basic_table(x, y);
+    cout<<endl;
 
     return 0;
 }
