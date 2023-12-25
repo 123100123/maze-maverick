@@ -1,0 +1,15 @@
+# Ignore CLion project files and directories
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Ignore executables and libraries
+*.exe
+*.out
+
+# Ignore build and temporary files
+cmake-build-debug/
+cmake-build-release/
+CMakeFiles/
+CMakeLists.txt
