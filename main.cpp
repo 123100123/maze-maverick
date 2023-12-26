@@ -128,19 +128,18 @@ vector<vector<int>> generate_basic_table(int x, int y){
 bool is_valid(const int& x, const int& y, const int& width, const int& height, const vector<vector<int>>& table) {
     return x >= 0 && x < height &&
            y >= 0 && y < width &&
-           (table[x][y] != 0 || table[x][y] == 0 && table[0][y] != 0);
+           table[x][y] != 0;
 }
 
 vector<pair<int, int>> path(int x, int y, int steps, int sum, const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
+    sum += table[x][y];
+    table[x][y] = 0;
+    steps += 1;
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
-        if ((steps == width+height-2) && (sum == table[x][y])) {
+        if ((steps == width+height-2) && (sum == table[ending_x][ending_y])) {
             return {{x, y}};
         }
     } else {
-        sum += table[x][y];
-        table[x][y] = 0;
-        steps += 1;
-
         if (is_valid(x + 1, y, width, height, table)) {
             vector<pair<int, int>> down_path = path(x + 1, y, steps, sum, width, height, table, ending_x, ending_y);
             if (!down_path.empty()) {
@@ -174,7 +173,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum, const int& width, 
         }
     }
 
-    return {};  // Empty vector if no valid path is found
+    return {};
 }
 
 
@@ -191,7 +190,8 @@ int main() {
     vector<vector<int>> table = generate_basic_table(x,y);
     print_table(table);
     cout<<endl;
-    vector<pair<int, int>> result = path(0, 0, 0, 0, x, y, table, x - 1, y - 1);
+    vector<pair<int, int>> result = path(0, 0, 0, 0, x, y, table, y - 1, x - 1);
+    result.push_back(make_pair(y-1,x-1));
 
     if (!result.empty()) {
         cout << "Path: ";
