@@ -410,6 +410,23 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
     return {};
 }
 
+void advanced_table_pathfinding(const vector<vector<int>>& table,const int total_steps){
+    //path finding on the generated table
+    int y = table.size();
+    int x = table[0].size();
+    vector<pair<int,int>> result = path(0,0,0,0,total_steps,x,y,table,y-1,x-1);
+    if (!result.empty()) {
+        result.emplace_back(y-1,x-1);
+        cout << "Path: ";
+        for (const auto& step : result) {
+            cout << "(" << step.first << ", " << step.second << ") ";
+        }
+        cout << endl;
+    } else {
+        cout << "No valid path found." << endl;
+    }
+}
+
 void generate_advanced_table(const int& x,const int& y,const int& min_wall,const int& max_wall,const int& min_num,const int& max_num,const int& total_steps){
     int empty_num = max_num +1;  //what to fill the first iteration with
     if(empty_num==0){
@@ -466,29 +483,11 @@ void generate_advanced_table(const int& x,const int& y,const int& min_wall,const
     cout<<endl;
     print_table(table);
 
-
-}
-
-void advanced_table_pathfinding(const vector<vector<int>>& table,const int total_steps){
-    //path finding on the generated table
-    int y = table.size();
-    int x = table[0].size();
-    vector<pair<int,int>> result = path(0,0,0,0,total_steps,x,y,table,y-1,x-1);
-    if (!result.empty()) {
-        result.emplace_back(y-1,x-1);
-        cout << "Path: ";
-        for (const auto& step : result) {
-            cout << "(" << step.first << ", " << step.second << ") ";
-        }
-        cout << endl;
-    } else {
-        cout << "No valid path found." << endl;
-    }
+    advanced_table_pathfinding(table,total_steps);
 }
 
 
 void SM_advanced_table(){
-
     int choice;
     cout<<"1. generate an advanced maze\n"
           "2. solve an advanced maze\n"
