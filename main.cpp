@@ -4,13 +4,14 @@
 #include <iomanip>
 #include <unordered_map>
 #include <algorithm>
+
 using namespace std;
 
 //printing tables
 void print_table(const vector<vector<int>>& table) {
     int rows = table.size();
 
-
+    //find how much the space be
     int width = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
@@ -21,6 +22,7 @@ void print_table(const vector<vector<int>>& table) {
         }
     }
 
+    //print the table based on the space we need
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
             cout << setw(width) << table[i][j] << " ";
@@ -32,8 +34,10 @@ void print_table(const vector<vector<int>>& table) {
 
 //random number generation
 int rand_range(int min, int max) {
+    //seed
     random_device rd;
     mt19937 gen(rd());
+
     uniform_int_distribution<> dis(min, max);
 
     return dis(gen);
@@ -50,27 +54,29 @@ int non_zero_element(int min, int max) {
 
 
 vector<int> generate_the_way(int rights, int downs) {
+    //in basic tables there should always be (x-1) rights and (y-1) downs to reach the end
     vector<int> resultVector;
 
     for (int i = 0; i < downs; ++i) {
         resultVector.push_back(1);
     }
-
     for (int i = 0; i < rights; ++i) {
         resultVector.push_back(0);
     }
 
+    //shuffle
     random_device rd;
     mt19937 g(rd());
     shuffle(resultVector.begin(), resultVector.end(), g);
     return resultVector;
 }
+
 vector<vector<int>> generate_basic_table(int x, int y){
     //generate the table with all nines
     vector<vector<int>> table(y, vector<int>(x, 9));
 
     //generate where to go (right or down)
-    vector<int> path = generate_the_way(x-1,y-1);
+    vector<int> way = generate_the_way(x-1,y-1);
 
     //generate the path based on the way we got
     int sum = 0;
@@ -79,7 +85,8 @@ vector<vector<int>> generate_basic_table(int x, int y){
     table[i][j] = generated;
     sum += generated;
 
-    for(int d : path){
+    for(int d : way){
+        //for each 0 we go right, for each 1 we go down
         if(d==0){
             j+=1;
         }else{
@@ -93,10 +100,11 @@ vector<vector<int>> generate_basic_table(int x, int y){
 
 
     //generate the walls
-    int wall_amount = rand_range(2,5);
+    int wall_amount = min(rand_range(2,5),x*y-(x+y-2));
     unordered_map<int,int> walls;
     for(int g = 1 ; g <=wall_amount; g++){
         while(true){
+            //keeps randomly picking spots until it finds an empty block(9) to replace it with 0
             int w = rand_range(0,x-1);
             int h = rand_range(0,y-1);
 
@@ -136,14 +144,18 @@ bool is_valid(const int& x, const int& y, const int& width, const int& height, c
            table[x][y] != 0;
 }
 vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
+    //starts from (0,0) and keeps checking left,right, up and down for valid blocks
     sum += table[x][y];
     table[x][y] = 0;
     steps += 1;
+
+    //stops if the next block(right or left) was the ending block
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
         if ((steps == total_steps) && (sum == table[ending_x][ending_y])) {
             return {{x, y}};
         }
     } else if(steps<=total_steps){
+        //down path
         if (is_valid(x + 1, y, width, height, table)) {
             vector<pair<int, int>> down_path = path(x + 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
             if (!down_path.empty()) {
@@ -151,7 +163,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
                 return down_path;
             }
         }
-
+        //right path
         if (is_valid(x, y + 1, width, height, table)) {
             vector<pair<int, int>> right_path = path(x, y + 1, steps, sum,total_steps, width, height, table, ending_x, ending_y);
             if (!right_path.empty()) {
@@ -159,7 +171,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
                 return right_path;
             }
         }
-
+        //up path
         if (is_valid(x - 1, y, width, height, table)) {
             vector<pair<int, int>> up_path = path(x - 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
             if (!up_path.empty()) {
@@ -167,7 +179,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
                 return up_path;
             }
         }
-
+        //left_path
         if (is_valid(x, y - 1, width, height, table)) {
             vector<pair<int, int>> left_path = path(x, y - 1, steps, sum, total_steps,width, height, table, ending_x, ending_y);
             if (!left_path.empty()) {
@@ -177,14 +189,11 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
         }
     }
 
-<<<<<<< Updated upstream
-=======
     //return empty so that the way wouldn't continue to be checked
->>>>>>> Stashed changes
     return {};
 }
 
-
+//find the path in the basic table
 void basic_table_path_finding(vector<vector<int>>& table){
     int y = table.size();
     int x = table[0].size();
@@ -219,8 +228,8 @@ void SM_basic_table(){
         cin >> x;
         cin >> y;
 
+        //input the table
         vector<vector<int>> table(y,vector<int>(x,0));
-
         for(int i=0;i<y;i++){
             for(int j=0;j<x;j++){
                 int inp;
@@ -232,7 +241,7 @@ void SM_basic_table(){
         cout<<endl;
 
     }else{
-        //input and print the table
+        //input the width and height and then print the table
         cout<<endl<<"input width and height(exp: x y): ";
         int x;
         int y;
@@ -248,8 +257,6 @@ void SM_basic_table(){
     }
 }
 
-<<<<<<< Updated upstream
-=======
 //generate the coordinates to reach the end
 vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
     table[x][y] = 0;
@@ -534,7 +541,6 @@ void SM_advanced_table(){
     }
 }
 
->>>>>>> Stashed changes
 int main() {
     //generate_advanced_table(5,5,1,3,-1,10,22);
 
@@ -557,4 +563,3 @@ int main() {
 
     return 0;
 }
-
