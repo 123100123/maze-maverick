@@ -39,13 +39,13 @@ int rand_range(int min, int max) {
     return dis(gen);
 }
 //random number generation but overlooking 0
-int non_zero_element(int min, int max){
-    int seed = rand_range(0,1);
-    if(seed == 0){
-        return rand_range(min,-1);
-    }else{
-        return rand_range(1,max);
+int non_zero_element(int min, int max) {
+    int seed = 0;
+    while (seed == 0) {
+        seed = rand_range(min, max);
     }
+
+    return seed;
 }
 
 
@@ -177,6 +177,10 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    //return empty so that the way wouldn't continue to be checked
+>>>>>>> Stashed changes
     return {};
 }
 
@@ -244,7 +248,296 @@ void SM_basic_table(){
     }
 }
 
+<<<<<<< Updated upstream
+=======
+//generate the coordinates to reach the end
+vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
+    table[x][y] = 0;
+    steps += 1;
+    if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
+        if (steps == total_steps) {
+            return {{x, y}};
+        }
+    } else if(steps<=total_steps){
+        // randomly choose which way to check(up, down, left, or right)
+
+        int random_num = rand_range(1,4);
+        //check orders are listed below and the algorithm is like the pathfinding
+
+        if(random_num == 1){                                         //down,up,right,left
+            if (is_valid(x + 1, y, width, height, table)) {
+                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!down_path.empty()) {
+                    down_path.insert(down_path.begin(), {x, y});
+                    return down_path;
+                }
+            }
+
+            if (is_valid(x - 1, y, width, height, table)) {
+                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!up_path.empty()) {
+                    up_path.insert(up_path.begin(), {x, y});
+                    return up_path;
+                }
+            }
+
+            if (is_valid(x, y + 1, width, height, table)) {
+                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!right_path.empty()) {
+                    right_path.insert(right_path.begin(), {x, y});
+                    return right_path;
+                }
+            }
+
+            if (is_valid(x, y - 1, width, height, table)) {
+                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
+                if (!left_path.empty()) {
+                    left_path.insert(left_path.begin(), {x, y});
+                    return left_path;
+                }
+            }
+
+        }
+        else if(random_num == 2){                                  //left,up,right,down
+            if (is_valid(x, y - 1, width, height, table)) {
+                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
+                if (!left_path.empty()) {
+                    left_path.insert(left_path.begin(), {x, y});
+                    return left_path;
+                }
+            }
+
+            if (is_valid(x + 1, y, width, height, table)) {
+                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!down_path.empty()) {
+                    down_path.insert(down_path.begin(), {x, y});
+                    return down_path;
+                }
+            }
+
+            if (is_valid(x - 1, y, width, height, table)) {
+                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!up_path.empty()) {
+                    up_path.insert(up_path.begin(), {x, y});
+                    return up_path;
+                }
+            }
+
+            if (is_valid(x, y + 1, width, height, table)) {
+                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!right_path.empty()) {
+                    right_path.insert(right_path.begin(), {x, y});
+                    return right_path;
+                }
+            }
+
+        }else if(random_num == 3){                                   //right,left,down,up
+            if (is_valid(x, y + 1, width, height, table)) {
+                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!right_path.empty()) {
+                    right_path.insert(right_path.begin(), {x, y});
+                    return right_path;
+                }
+            }
+
+            if (is_valid(x, y - 1, width, height, table)) {
+                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
+                if (!left_path.empty()) {
+                    left_path.insert(left_path.begin(), {x, y});
+                    return left_path;
+                }
+            }
+
+            if (is_valid(x + 1, y, width, height, table)) {
+                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!down_path.empty()) {
+                    down_path.insert(down_path.begin(), {x, y});
+                    return down_path;
+                }
+            }
+
+            if (is_valid(x - 1, y, width, height, table)) {
+                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!up_path.empty()) {
+                    up_path.insert(up_path.begin(), {x, y});
+                    return up_path;
+                }
+            }
+
+        }else{                                                       //right,left,down,up
+            if (is_valid(x, y + 1, width, height, table)) {
+                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!right_path.empty()) {
+                    right_path.insert(right_path.begin(), {x, y});
+                    return right_path;
+                }
+            }
+
+            if (is_valid(x, y - 1, width, height, table)) {
+                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
+                if (!left_path.empty()) {
+                    left_path.insert(left_path.begin(), {x, y});
+                    return left_path;
+                }
+            }
+
+            if (is_valid(x + 1, y, width, height, table)) {
+                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!down_path.empty()) {
+                    down_path.insert(down_path.begin(), {x, y});
+                    return down_path;
+                }
+            }
+
+            if (is_valid(x - 1, y, width, height, table)) {
+                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
+                if (!up_path.empty()) {
+                    up_path.insert(up_path.begin(), {x, y});
+                    return up_path;
+                }
+            }
+        }
+    }
+
+    //returns empty not to follow the wrong path
+    return {};
+}
+
+void generate_advanced_table(const int& x,const int& y,const int& min_wall,const int& max_wall,const int& min_num,const int& max_num,const int& total_steps){
+    int empty_num = max_num +1;  //what to fill the first iteration with
+    if(empty_num==0){
+        empty_num++;
+    }
+    vector<pair<int,int>> empty_coordinates;  //keep track of empty blocks
+    for(int i = 0; i<= x-1;i++){
+        for(int j=0; j <= y-1;j++){
+            empty_coordinates.emplace_back(i,j);
+        }
+    }
+
+
+    vector<vector<int>> table(y, vector<int>(x, empty_num));    //table layout
+    vector<pair<int,int>> way = generate_adv_path(0,0,0,total_steps,x,y,table,y-1,x-1);
+
+    int sum =0;
+    for(const pair<int,int>& step : way){
+        //remove the filled blocks from the empty set
+        empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), step), empty_coordinates.end());
+
+        int random_num = non_zero_element(min_num,max_num);
+        //cout<<step.first<<" "<<step.second<<" /"<<random_num<<endl;
+        sum += random_num;
+        table[step.first][step.second] = random_num;
+    }
+
+    //the last block shouldn't be 0
+    if(sum==0){
+        sum = 1;
+        table[way[way.size()-1].first][way[way.size()-1].second] -= 1;
+    }
+    empty_coordinates.pop_back();
+    table[y-1][x-1] = sum;
+
+    int wall_amount = min(rand_range(min_wall,max_wall),x*y-total_steps);
+
+    //shuffle the empty coords
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(empty_coordinates.begin(), empty_coordinates.end(),g);
+
+    //fill the shuffled list of empty blocks with 0
+    for(int i = 0 ; i<wall_amount;i++){
+        pair<int,int> current = empty_coordinates[0];
+        table[current.first][current.second] = 0;
+        empty_coordinates.erase(empty_coordinates.begin());
+    }
+
+    //fill the rest of the blocks with random numbers
+    for(const pair<int,int> i : empty_coordinates){
+        table[i.first][i.second] = non_zero_element(min_num,max_num);
+    }
+    cout<<endl;
+    print_table(table);
+
+
+}
+
+void advanced_table_pathfinding(const vector<vector<int>>& table,const int total_steps){
+    //path finding on the generated table
+    int y = table.size();
+    int x = table[0].size();
+    vector<pair<int,int>> result = path(0,0,0,0,total_steps,x,y,table,y-1,x-1);
+    if (!result.empty()) {
+        result.emplace_back(y-1,x-1);
+        cout << "Path: ";
+        for (const auto& step : result) {
+            cout << "(" << step.first << ", " << step.second << ") ";
+        }
+        cout << endl;
+    } else {
+        cout << "No valid path found." << endl;
+    }
+}
+
+
+void SM_advanced_table(){
+
+    int choice;
+    cout<<"1. generate an advanced maze\n"
+          "2. solve an advanced maze\n"
+          "choose an option: ";
+    cin>>choice;
+    if(choice == 1){
+        //vector<vector<int>> table;
+
+        int x,y;
+        cout<<"input width and height(exp:x y): ";
+        cin>>x>>y;
+
+        int min_wall,max_wall;
+        cout<<"\nmin and max amount of walls(exp:min max): ";
+        cin>>min_wall>>max_wall;
+
+        int min_num,max_num;
+        cout<<"\nnumbers min and max(exp:min max): ";
+        cin>>min_num>>max_num;
+
+        int path_len;
+        cout<<"\npath length: ";
+        cin>>path_len;
+
+        generate_advanced_table(x,y,min_wall,max_wall,min_num,max_num,path_len);
+    }else{
+        cout<<endl;
+        cout << "input width and height(exp: x y): ";
+        int x;
+        int y;
+        cin >> x;
+        cin >> y;
+
+        cout<< "\ninput the length of the path: ";
+        int len;
+        cin>>len;
+        //input the table
+        vector<vector<int>> table(y,vector<int>(x,0));
+        for(int i=0;i<y;i++){
+            for(int j=0;j<x;j++){
+                int inp;
+                cin>>inp;
+                table[i][j] = inp;
+            }
+        }
+        advanced_table_pathfinding(table,len);
+        //print_table(table);
+        cout<<endl;
+
+    }
+}
+
+>>>>>>> Stashed changes
 int main() {
+    //generate_advanced_table(5,5,1,3,-1,10,22);
+
     cout<<"1. basic maze \n"
           "2. advanced maze \n"
           "choose an option: ";
@@ -257,16 +550,7 @@ int main() {
             break;
 
         case 2:
-            cout<<"1. generate an advanced maze\n"
-                  "2. solve an advanced maze\n"
-                  "choose an option: ";
-            cin>>choice;
-            if(choice == 1){
-                break;
-            }else{
-                break;
-            }
-
+            SM_advanced_table();
         default:
             break;
     }
