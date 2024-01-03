@@ -65,6 +65,8 @@ vector<int> generate_the_way(int rights, int downs) {
 void generate_basic_table(int x, int y){
     //generate the table with all nines
     vector<vector<int>> table(y, vector<int>(x, 9));
+    print_table(table);
+    cout<<endl;
 
     //generate where to go (right or down)
     vector<int> path = generate_the_way(x-1,y-1);
@@ -87,7 +89,20 @@ void generate_basic_table(int x, int y){
         table[i][j] = generated;
     }
     table[y-1][x-1] = sum - table[y-1][x-1];
+    if(table[y-1][x-1] == 0){
+        table[y-1][x-1] ++;
+        if(table[y-2][x-1] == 9){
+            table[y-2][x-1] --;
+        }else{
+            table[y-1][x-2] --;
+        }
+    }
 
+<<<<<<< Updated upstream
+=======
+    print_table(table);
+    cout<<endl;
+>>>>>>> Stashed changes
     //generate the walls
     int wall_amount = rand_range(2,5);
     unordered_map<int,int> walls;
@@ -111,8 +126,14 @@ void generate_basic_table(int x, int y){
             }
         }
     }
+<<<<<<< Updated upstream
 
     //make the rest of the table random
+=======
+    print_table(table);
+    cout<<endl;
+    //make the rest of the blocks random
+>>>>>>> Stashed changes
     for(int m = 0; m <= y-1;m++){
         for(int n = 0; n<= x-1;n++){
             if(table[m][n] == 9){
