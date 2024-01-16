@@ -174,6 +174,15 @@ vector<vector<int>> generate_basic_table(int x, int y){
     //generate the table with all nines
     vector<vector<int>> table(y, vector<int>(x, 9));
 
+
+    vector<pair<int,int>> empty_coordinates;
+    for(int i = 0; i<= x-1;i++){
+        for(int j=0; j <= y-1;j++){
+            empty_coordinates.emplace_back(i,j);
+        }
+    }
+
+
     //generate where to go (right or down)
     vector<int> way = generate_the_way(x-1,y-1);
 
@@ -183,52 +192,48 @@ vector<vector<int>> generate_basic_table(int x, int y){
     int generated = non_zero_element(-3,3);
     table[i][j] = generated;
     sum += generated;
+    empty_coordinates.erase(empty_coordinates.begin());
+    empty_coordinates.erase(empty_coordinates.begin()+empty_coordinates.size()-1);
 
-    for(int d : way){
-        //for each 0 we go right, for each 1 we go down
+    for(int m = 0; m < way.size()-1;m++){
+        int d = way[m];
+
         if(d==0){
             j+=1;
         }else{
             i+=1;
         }
+        empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), make_pair(j,i)), empty_coordinates.end());
+
         generated = non_zero_element(-3,3);
         sum += generated;
         table[i][j] = generated;
     }
-    table[y-1][x-1] = sum - table[y-1][x-1];
 
-    //generate the walls
-    int wall_amount = min(rand_range(2,5),x*y-(x+y-2));
-    unordered_map<int,int> walls;
-    for(int g = 1 ; g <=wall_amount; g++){
-        while(true){
-            //keeps randomly picking spots until it finds an empty block(9) to replace it with 0
-            int w = rand_range(0,x-1);
-            int h = rand_range(0,y-1);
-
-            if(table[h][w]==9){
-                if(walls.find(h) == walls.end()){
-                    walls[h] = w;
-                    table[h][w] = 0;
-                    break;
-                }else{
-                    if (walls[h]!=w){
-                        walls[h] = w;
-                        table[h][w] = 0;
-                        break;
-                    }
-                }
-            }
-        }
+    if(sum != 0){
+        table[y-1][x-1] = sum ;
+    }else{
+        table[i][j]++;
+        table[y-1][x-1] ++;
     }
 
-    //make the rest of the blocks random
-    for(int m = 0; m <= y-1;m++){
-        for(int n = 0; n<= x-1;n++){
-            if(table[m][n] == 9){
-                table[m][n] = non_zero_element(-3,3);
-            }
-        }
+
+    //generate the walls
+    int wall_amount = min(rand_range(2,5),int(empty_coordinates.size()));
+
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(empty_coordinates.begin(), empty_coordinates.end(),g);
+
+    for(int n = 0 ; n < wall_amount; n++){
+        table[empty_coordinates[0].second][empty_coordinates[0].first] = 0;
+        empty_coordinates.erase(empty_coordinates.begin());
+    }
+
+
+
+    for(pair<int,int> &z : empty_coordinates){
+        table[z.second][z.first] = non_zero_element(-3,3);
     }
 
     return table;
@@ -464,7 +469,7 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     int sum =0;
     for(const pair<int,int>& step : way){
         //remove the filled blocks from the empty set
-        empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), step), empty_coordinates.end());
+        empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), make_pair(step.second,step.first)), empty_coordinates.end());
 
         int random_num = non_zero_element(min_num,max_num);
         //cout<<step.first<<" "<<step.second<<" /"<<random_num<<endl;
@@ -506,7 +511,6 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
 
 void play(vector<vector<int>> &table,int& len){
     while(true){
-
         int width = table[0].size();
         int height = table.size();
         vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
@@ -522,7 +526,7 @@ void play(vector<vector<int>> &table,int& len){
 
         int move_index = 0;
         while (true){
-            cout<<"w(up)  s(down)  d(right)  a(left)  q(quit) \n";
+            cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) \n";
             if(x == height-1 && y == width-1){
                 break;
             }
@@ -575,6 +579,7 @@ void play(vector<vector<int>> &table,int& len){
         }
         if(won){
             cout<<"WON"<<endl;
+            break;
         }else{
             cout<<"LOST"<<endl;
         }
@@ -648,7 +653,7 @@ vector<vector<int>> input_maze(){
     //input the table
     vector<vector<int>> table(y,vector<int>(x,0));
     for(int i = 0; i < y ;i++){
-        for(int j = 0; j < y; j++){
+        for(int j = 0; j < x; j++){
             int inp;
             cin>>inp;
             table[i][j] = inp;
@@ -782,17 +787,16 @@ void menu_solve_advanced_maze(){
 }
 
 void menu_solve_basic_maze(){
-    cout<<endl;
-    cout << "input width and height(exp: x y): ";
-    int x;
-    int y;
-    cin >> x;
-    cin >> y;
-
     //input the table
     vector<vector<int>> table = input_maze();
 
+    int x = table[0].size();
+    int y = table.size();
+
+
     vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
+
+    cout<<endl;
 
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
