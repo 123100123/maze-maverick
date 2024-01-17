@@ -1,5 +1,6 @@
 # Ignore CLion project files and directories
 .idea/
+maps/
 *.iml
 *.ipr
 *.iws
