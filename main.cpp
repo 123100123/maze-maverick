@@ -782,7 +782,6 @@ void menu_solve_basic_maze(){
 
     vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
 
-    cout<<endl;
 
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
@@ -810,6 +809,31 @@ void menu_play_new(){
     play(table,len);
 }
 
+void menu_solve_existing_maze(){
+    string name = map_name();
+
+    string dir = "./maps/" + name + "/map.txt";
+
+    int len;
+    vector<vector<int>> table = read_maze(len,dir);
+
+    int x = table[0].size();
+    int y = table.size();
+
+    vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
+
+
+    if(!result.empty()){
+        result.emplace_back(y-1,x-1);
+        print_colored_table(table,result,0);
+    }else{
+        cout<<"no path found";
+    }
+
+}
+
+
+
 void menu_play_through_history(string &dir){
     int len;
     vector<vector<int>> table = read_maze(len,dir);
@@ -828,7 +852,7 @@ void menu_history(){
     }
 }
 
-int main() {
+void menu_welcome(){
     cout<<"1. create a maze \n"
           "2. solve a maze \n"
           "3. playground \n"
@@ -858,16 +882,27 @@ int main() {
 
         case 2:
             system("cls");
-            cout<<"1. basic maze\n"
-                  "2. advanced maze\n"
-                  "choose an option: ";
-
-            cin>>choice;
-
+            cout<<"1. solve a previous maze\n"
+                  "2. solve a new maze\n"
+                  "choose an option:";
+            cin >> choice;
             if(choice == 1){
-                menu_solve_basic_maze();
-            }else{
-                menu_solve_advanced_maze();
+                menu_solve_existing_maze();
+
+            }else if(choice == 2) {
+                cout << "1. play a previous maze\n"
+                        "2. play a new maze\n"
+                        "choose an option: ";
+                cin >> choice;
+
+                if (choice == 1) {
+                    menu_play_previous();
+                }
+
+                if (choice == 2) {
+                    menu_play_new();
+
+                }
             }
             break;
         case 3:
@@ -877,6 +912,7 @@ int main() {
                   "choose an option: ";
             cin >> choice;
 
+            system("cls");
             if(choice == 1){
                 menu_play_previous();
             }
@@ -894,6 +930,10 @@ int main() {
         default:
             break;
     }
+}
 
+
+int main() {
+    menu_welcome();
     return 0;
 }
