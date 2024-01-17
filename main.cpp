@@ -844,92 +844,140 @@ void menu_history(){
     if(!filesystem::is_directory("./maps")){
         cout<<"no previous games";
     }else{
-        string name = map_name();
-        cout << name <<endl;
-        string dir = "./maps/" + name +"/map.txt";
-        cout<<dir<<endl;
-        menu_play_through_history(dir);
+        while(true){
+            system("cls");
+            cout<<"1. show the history\n"
+                  "2. clear history\n"
+                  "choose an option(0 to go back): ";
+            int choice;
+            cin >> choice;
+            if(choice == 1){
+                system("cls");
+                string name = map_name();
+                cout << name <<endl;
+                string dir = "./maps/" + name +"/map.txt";
+                cout<<dir<<endl;
+                menu_play_through_history(dir);
+            }else if(choice == 2){
+                while(true){
+                    system("cls");
+                    cout<<"are you sure?(y/n)";
+                    char ch;
+                    cin>> ch;
+                    if(ch == 'y'){
+                        filesystem::remove("./maps");
+                    }else if(ch == 'n'){
+                        break;
+                    }
+                }
+            }else if(choice == 0){
+                break;
+                system("cls");
+            }
+        }
     }
 }
 
 void menu_welcome(){
-    cout<<"1. create a maze \n"
-          "2. solve a maze \n"
-          "3. playground \n"
-          "4. history\n"
-          "5. leaderboard \n"
-          "6. exit\n"
-          "choose an option: ";
-    int choice;
-    cin>>choice;
-    system("cls");
+    while (true){
+        cout<<"1. create a maze \n"
+              "2. solve a maze \n"
+              "3. playground \n"
+              "4. history\n"
+              "5. leaderboard \n"
+              "6. exit\n"
+              "choose an option: ";
+        int choice;
+        cin>>choice;
 
-    switch (choice) {
-        case 1:
-            //generate a maze
-            cout<<"1. basic maze\n"
-                  "2. advanced maze\n"
-                  "choose an option: ";
-            cin>>choice;
+        system("cls");
 
-            if(choice == 1){
-                menu_generate_basic_maze();
-            }else if(choice == 2){
-                menu_generate_advanced_maze();
-            }
+        switch (choice) {
+            case 1:
+                while(true){
+                    system("cls");
+                    cout<<"1. basic maze\n"
+                          "2. advanced maze\n"
+                          "choose an option(0 to go back): ";
+                    cin>>choice;
 
-            break;
-
-        case 2:
-            system("cls");
-            cout<<"1. solve a previous maze\n"
-                  "2. solve a new maze\n"
-                  "choose an option:";
-            cin >> choice;
-            if(choice == 1){
-                menu_solve_existing_maze();
-
-            }else if(choice == 2) {
-                cout << "1. play a previous maze\n"
-                        "2. play a new maze\n"
-                        "choose an option: ";
-                cin >> choice;
-
-                if (choice == 1) {
-                    menu_play_previous();
+                    if(choice == 1){
+                        menu_generate_basic_maze();
+                    }else if(choice == 2){
+                        menu_generate_advanced_maze();
+                    }else if(choice == 0){
+                        system("cls");
+                        break;
+                    }
                 }
+                break;
+            case 2:
+                while(true){
+                    system("cls");
+                    cout<<"1. solve a previous maze\n"
+                          "2. solve a new maze\n"
+                          "choose an option(0 to go back):";
+                    cin >> choice;
 
-                if (choice == 2) {
-                    menu_play_new();
+                    if(choice == 1){
+                        menu_solve_existing_maze();
 
+                    }else if(choice == 2) {
+                        while(true){
+                            system("cls");
+                            cout << "1. play a previous maze\n"
+                                    "2. play a new maze\n"
+                                    "choose an option(0 to go back): ";
+                            cin >> choice;
+                            if (choice == 1) {
+                                menu_play_previous();
+                            }
+                            else if (choice == 2) {
+                                menu_play_new();
+                            }else if(choice == 0){
+                                system("cls");
+                                break;
+                            }
+                        }
+
+                    }else if(choice == 0){
+                        system("cls");
+                        break;
+                    }
                 }
-            }
-            break;
-        case 3:
-            system("cls");
-            cout<<"1. play a previous maze\n"
-                  "2. play a new maze\n"
-                  "choose an option: ";
-            cin >> choice;
+                break;
+            case 3:
+                while(true){
+                    system("cls");
+                    cout<<"1. play a previous maze\n"
+                          "2. play a new maze\n"
+                          "choose an option(0 to go back): ";
+                    cin >> choice;
 
-            system("cls");
-            if(choice == 1){
-                menu_play_previous();
-            }
+                    system("cls");
+                    if(choice == 1){
+                        menu_play_previous();
+                    }else if(choice == 2){
+                        menu_play_new();
+                    }else if(choice == 0){
+                        break;
+                    }
+                }
+                break;
+            case 4:
+                system("cls");
+                menu_history();
+                break;
 
-            if(choice == 2){
-                menu_play_new();
-            }
-            break;
-        case 4:
-            system("cls");
-            menu_history();
-            break;
-        case 5:
-            break;
-        default:
-            break;
+            case 5:
+                break;
+            case 6:
+                return;
+            default:
+                break;
+        }
     }
+
 }
 
 
