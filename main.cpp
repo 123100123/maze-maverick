@@ -10,7 +10,9 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
-
+#include <windows.h>
+#include <unistd.h>
+#include <thread>
 
 using namespace std;
 
@@ -174,6 +176,15 @@ vector<vector<int>> generate_basic_table(int x, int y){
     //generate the table with all nines
     vector<vector<int>> table(y, vector<int>(x, 9));
 
+
+    vector<pair<int,int>> empty_coordinates;
+    for(int i = 0; i<= x-1;i++){
+        for(int j=0; j <= y-1;j++){
+            empty_coordinates.emplace_back(i,j);
+        }
+    }
+
+
     //generate where to go (right or down)
     vector<int> way = generate_the_way(x-1,y-1);
 
@@ -183,52 +194,48 @@ vector<vector<int>> generate_basic_table(int x, int y){
     int generated = non_zero_element(-3,3);
     table[i][j] = generated;
     sum += generated;
+    empty_coordinates.erase(empty_coordinates.begin());
+    empty_coordinates.erase(empty_coordinates.begin()+empty_coordinates.size()-1);
 
-    for(int d : way){
-        //for each 0 we go right, for each 1 we go down
+    for(int m = 0; m < way.size()-1;m++){
+        int d = way[m];
+
         if(d==0){
             j+=1;
         }else{
             i+=1;
         }
+        empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), make_pair(j,i)), empty_coordinates.end());
+
         generated = non_zero_element(-3,3);
         sum += generated;
         table[i][j] = generated;
     }
-    table[y-1][x-1] = sum - table[y-1][x-1];
 
-    //generate the walls
-    int wall_amount = min(rand_range(2,5),x*y-(x+y-2));
-    unordered_map<int,int> walls;
-    for(int g = 1 ; g <=wall_amount; g++){
-        while(true){
-            //keeps randomly picking spots until it finds an empty block(9) to replace it with 0
-            int w = rand_range(0,x-1);
-            int h = rand_range(0,y-1);
-
-            if(table[h][w]==9){
-                if(walls.find(h) == walls.end()){
-                    walls[h] = w;
-                    table[h][w] = 0;
-                    break;
-                }else{
-                    if (walls[h]!=w){
-                        walls[h] = w;
-                        table[h][w] = 0;
-                        break;
-                    }
-                }
-            }
-        }
+    if(sum != 0){
+        table[y-1][x-1] = sum ;
+    }else{
+        table[i][j]++;
+        table[y-1][x-1] ++;
     }
 
-    //make the rest of the blocks random
-    for(int m = 0; m <= y-1;m++){
-        for(int n = 0; n<= x-1;n++){
-            if(table[m][n] == 9){
-                table[m][n] = non_zero_element(-3,3);
-            }
-        }
+
+    //generate the walls
+    int wall_amount = min(rand_range(2,5),int(empty_coordinates.size()));
+
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(empty_coordinates.begin(), empty_coordinates.end(),g);
+
+    for(int n = 0 ; n < wall_amount; n++){
+        table[empty_coordinates[0].second][empty_coordinates[0].first] = 0;
+        empty_coordinates.erase(empty_coordinates.begin());
+    }
+
+
+
+    for(pair<int,int> &z : empty_coordinates){
+        table[z.second][z.first] = non_zero_element(-3,3);
     }
 
     return table;
@@ -464,7 +471,7 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     int sum =0;
     for(const pair<int,int>& step : way){
         //remove the filled blocks from the empty set
-        empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), step), empty_coordinates.end());
+        empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), make_pair(step.second,step.first)), empty_coordinates.end());
 
         int random_num = non_zero_element(min_num,max_num);
         //cout<<step.first<<" "<<step.second<<" /"<<random_num<<endl;
@@ -503,26 +510,65 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     return table;
 }
 
+void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<int,int>> &passed, bool &ended){
+    int sec = 0;
+    int min = 0;
+    while (!ended){
+
+        sleep(1);
+        total ++;
+        if(sec <59){
+            sec ++;
+        }else{
+            sec = 0;
+            min ++;
+        }
+
+        string sec_str = to_string(sec);
+        string min_str = to_string(min);
+
+        if(sec_str.size() == 1){
+            sec_str = '0' + sec_str;
+        }
+        if(min_str.size() == 1){
+            min_str = '0' + min_str;
+        }
+        time = min_str + ":" + sec_str;
+
+        system("cls");
+
+        print_colored_table(table,passed,1);
+        cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) "<<endl;
+        cout<<time<<endl;
+    }
+}
 
 void play(vector<vector<int>> &table,int& len){
-    while(true){
+    int width = table[0].size();
+    int height = table.size();
+    vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
+    path_found.emplace_back(height-1,width-1);
 
-        int width = table[0].size();
-        int height = table.size();
-        vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
-        path_found.emplace_back(height-1,width-1);
+
+    while(true){
+        bool ended = false;
+        string time;
+        int total;
+
         vector<pair<int, int>> passed = {
                 {0, 0}
         };
         int x=0,y=0;
 
-        print_colored_table(table,passed,1);
 
         char key;
 
         int move_index = 0;
+        thread t1(stop_watch,ref(time),ref(total),ref(table),ref(passed),ref(ended));
         while (true){
-            cout<<"w(up)  s(down)  d(right)  a(left)  q(quit) \n";
+            cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) "<<endl;
+            cout<<time<<endl;
+
             if(x == height-1 && y == width-1){
                 break;
             }
@@ -552,16 +598,15 @@ void play(vector<vector<int>> &table,int& len){
                 y = passed[passed.size()-1].second;
             }
             else if(key == 'q'){
+                t1.join();
                 return;
-            }else{
-                cout<<"wrong input"<<endl;
             }
 
-            cout<<string(50,'\n');
+            system("cls");
             print_colored_table(table,passed,1);
         }
-
-        cout<<endl;
+        ended = true;
+        t1.join();
         bool won = true;
         if(passed.size() == path_found.size()){
             for(int i =0; i <= passed.size()-1;i++){
@@ -574,10 +619,14 @@ void play(vector<vector<int>> &table,int& len){
             won = false;
         }
         if(won){
+            system("cls");
             cout<<"WON"<<endl;
+            break;
         }else{
+            system("cls");
             cout<<"LOST"<<endl;
         }
+
         print_end_game_table(table,passed,path_found,won);
 
         bool try_again = false;
@@ -603,6 +652,28 @@ void play(vector<vector<int>> &table,int& len){
 
 }
 
+
+string map_name(){
+    vector<string> names;
+    int x = 0;
+    for (const auto & entry : filesystem::directory_iterator("./maps")) {
+        x++;
+        cout << x <<". " << entry.path().filename().string() << endl;
+        names.push_back(entry.path().filename().string());
+    }
+
+    while (true){
+        cout<<"choose a number(0 to go back): ";
+        int num;
+        cin >> num;
+        system("cls");
+        if(1 <= num && num <= x+1){
+            return names[num-1];
+        }else{
+            cout<< "wrong input";
+        }
+    }
+}
 
 void import_maze(vector<vector<int>> &table, int len){
     int x = table[0].size();
@@ -639,45 +710,30 @@ void import_maze(vector<vector<int>> &table, int len){
 }
 
 vector<vector<int>> input_maze(){
+    system("cls");
     cout << "input width and height(exp: x y): ";
     int x;
     int y;
     cin >> x;
     cin >> y;
 
+    system("cls");
+    cout<<"input table: "<<endl;
     //input the table
     vector<vector<int>> table(y,vector<int>(x,0));
     for(int i = 0; i < y ;i++){
-        for(int j = 0; j < y; j++){
+        for(int j = 0; j < x; j++){
             int inp;
             cin>>inp;
             table[i][j] = inp;
         }
     }
+    system("cls");
     return table;
 }
 
-vector<vector<int>> read_maze(int &len,string address){
-    if(address =="#"){
-        address = "";
-        while(true){
-
-            string name;
-            cout<<"maze name: ";
-            cin>>name;
-
-            address = "./maps/"+ name;
-            if(filesystem::is_directory(address)){
-                break;
-            }else{
-                cout<<"map doesn't exist";
-            }
-        }
-    }else{
-        address = "./maps/"+ address;
-    }
-
-    ifstream map(address+"/map.txt");
+vector<vector<int>> read_maze(int &len,string &address){
+    ifstream map(address);
 
     int x,y;
     map >> x >> y;
@@ -694,43 +750,16 @@ vector<vector<int>> read_maze(int &len,string address){
     return table;
 }
 
-void listdir(string path){
-    int x = 0;
-    for (const auto & entry : filesystem::directory_iterator(path)) {
-        x++;
-        cout << x <<". " << entry.path().filename().string() << endl;
-    }
-}
-
-string choose_dir(string path){
-    vector<string> result;
-    int x = 0;
-    for (const auto & entry : filesystem::directory_iterator(path)) {
-        result.push_back(entry.path().filename().string());
-        x++;
-        //cout << x <<". " << entry.path().filename().string() << endl;
-    }
-    while(true){
-        //cout<<"choose a number: ";
-        int inp;
-        cin>>inp;
-
-        if(inp>=1 && inp<=x){
-            return result[inp-1];
-        }else{
-            cout<<"wrong input";
-        }
-    }
-}
 
 void menu_generate_basic_maze(){
-    cout<<endl<<"input width and height(exp: x y): ";
+    system("cls");
+    cout<<"input width and height(exp: x y): ";
     int x;
     int y;
     cin>>x;
     cin>>y;
 
-    cout<<endl;
+    system("cls");
     vector<vector<int>> table = generate_basic_table(x,y);
     import_maze(table,x+y-2);
     print_table(table);
@@ -741,29 +770,36 @@ void menu_generate_advanced_maze(){
     cout<<"input width and height(exp:x y): ";
     cin>>x>>y;
 
+    system("cls");
     int min_wall,max_wall;
-    cout<<"\nmin and max amount of walls(exp:min max): ";
+    cout<<"min and max amount of walls(exp:min max): ";
     cin>>min_wall>>max_wall;
 
+    system("cls");
     int min_num,max_num;
-    cout<<"\nnumbers min and max(exp:min max): ";
+    cout<<"numbers min and max(exp:min max): ";
     cin>>min_num>>max_num;
 
+    system("cls");
     int path_len;
-    cout<<"\npath length: ";
+    cout<<"path length: ";
     cin>>path_len;
 
 
+    system("cls");
     vector<vector<int>> table = generate_advanced_table(x,y,min_wall,max_wall,min_num,max_num,path_len);
     print_table(table);
+
+    cout<<endl;
     import_maze(table,path_len);
 }
 
 void menu_solve_advanced_maze(){
+    system("cls");
     vector<vector<int>> table = input_maze();
 
     int len;
-    cout<< "\ninput the length of the path: ";
+    cout<< "input the length of the path: ";
     cin>>len;
 
     int y = table.size();
@@ -777,22 +813,20 @@ void menu_solve_advanced_maze(){
     }else{
         cout<<"no path found";
     }
+    cin >> x;
 
-    cout<<endl;
 }
 
 void menu_solve_basic_maze(){
-    cout<<endl;
-    cout << "input width and height(exp: x y): ";
-    int x;
-    int y;
-    cin >> x;
-    cin >> y;
-
     //input the table
     vector<vector<int>> table = input_maze();
 
+    int x = table[0].size();
+    int y = table.size();
+
+
     vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
+
 
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
@@ -800,12 +834,14 @@ void menu_solve_basic_maze(){
     }else{
         cout<<"no path found";
     }
+
+    cin >> x;
 }
 
 void menu_play_previous(){
-    listdir("./maps");
-    string dir = choose_dir("./maps");
     int len;
+    string name = map_name();
+    string dir = "./maps/" + name + "/map.txt";
     vector<vector<int>> table = read_maze(len,dir);
 
     play(table,len);
@@ -820,6 +856,29 @@ void menu_play_new(){
     play(table,len);
 }
 
+void menu_solve_existing_maze(){
+    string name = map_name();
+    string dir = "./maps/" + name + "/map.txt";
+
+    int len;
+    vector<vector<int>> table = read_maze(len,dir);
+
+    int x = table[0].size();
+    int y = table.size();
+
+    vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
+
+
+    if(!result.empty()){
+        result.emplace_back(y-1,x-1);
+        print_colored_table(table,result,0);
+    }else{
+        cout<<"no path found";
+    }
+
+    cin >>x;
+}
+
 void menu_play_through_history(string &dir){
     int len;
     vector<vector<int>> table = read_maze(len,dir);
@@ -830,88 +889,143 @@ void menu_history(){
     if(!filesystem::is_directory("./maps")){
         cout<<"no previous games";
     }else{
-        listdir("./maps");
-        cout<<"\naction:\n"
-              "d for delete\n"
-              "p for play\n"
-              "choose an option(exp d 1): ";
-        char inp;
-        cin >> inp;
-        if(inp == 'p'){
-            string dir = choose_dir("./maps");
-            menu_play_through_history(dir);
-        }else{
-            string dir = choose_dir("./maps");
-            filesystem::remove_all("./maps/"+dir);
+        while(true){
+            system("cls");
+            cout<<"1. show the history\n"
+                  "2. clear history\n"
+                  "choose an option(0 to go back): ";
+            int choice;
+            cin >> choice;
+            if(choice == 1){
+                system("cls");
+                string name = map_name();
+                cout << name <<endl;
+                string dir = "./maps/" + name +"/map.txt";
+                cout<<dir<<endl;
+                menu_play_through_history(dir);
+            }else if(choice == 2){
+                while(true){
+                    system("cls");
+                    cout<<"are you sure?(y/n)";
+                    char ch;
+                    cin>> ch;
+                    if(ch == 'y'){
+                        filesystem::remove("./maps");
+                    }else if(ch == 'n'){
+                        break;
+                    }
+                }
+            }else if(choice == 0){
+                break;
+                system("cls");
+            }
         }
     }
 }
 
-int main() {
-    cout<<"1. create a maze \n"
-          "2. solve a maze \n"
-          "3. playground \n"
-          "4. history\n"
-          "5. leaderboard \n"
-          "6. exit\n"
-          "choose an option: ";
-    int choice;
-    cin>>choice;
-    cout<<endl;
+void menu_welcome(){
+    while (true){
+        cout<<"1. create a maze \n"
+              "2. solve a maze \n"
+              "3. playground \n"
+              "4. history\n"
+              "5. leaderboard \n"
+              "6. exit\n"
+              "choose an option: ";
+        int choice;
+        cin>>choice;
 
-    switch (choice) {
-        case 1:
-            //generate a maze
-            cout<<"1. basic maze\n"
-                  "2. advanced maze\n"
-                  "choose an option: ";
-            cin>>choice;
+        system("cls");
 
-            if(choice == 1){
-                menu_generate_basic_maze();
-            }else if(choice == 2){
-                menu_generate_advanced_maze();
-            }
+        switch (choice) {
+            case 1:
+                while(true){
+                    system("cls");
+                    cout<<"1. basic maze\n"
+                          "2. advanced maze\n"
+                          "choose an option(0 to go back): ";
+                    cin>>choice;
+                    system("cls");
+                    if(choice == 1){
+                        menu_generate_basic_maze();
+                    }else if(choice == 2){
+                        menu_generate_advanced_maze();
+                    }else if(choice == 0){
+                        system("cls");
+                        break;
+                    }
+                }
+                break;
+            case 2:
+                while(true){
+                    system("cls");
+                    cout<<"1. solve a previous maze\n"
+                          "2. solve a new maze\n"
+                          "choose an option(0 to go back):";
+                    cin >> choice;
+                    system("cls");
+                    if(choice == 1){
+                        menu_solve_existing_maze();
+                    }else if(choice == 2) {
+                        while(true){
+                            system("cls");
+                            cout << "1. basic maze\n"
+                                    "2. advanced maze\n"
+                                    "choose an option(0 to go back): ";
+                            cin >> choice;
+                            if (choice == 1) {
+                                menu_solve_basic_maze();
+                            }
+                            else if (choice == 2) {
+                                menu_solve_advanced_maze();
+                            }else if(choice == 0){
+                                system("cls");
+                                break;
+                            }
+                        }
 
-            break;
+                    }else if(choice == 0){
+                        system("cls");
+                        break;
+                    }
+                }
+                break;
+            case 3:
+                while(true){
+                    system("cls");
+                    cout<<"1. play a previous maze\n"
+                          "2. play a new maze\n"
+                          "choose an option(0 to go back): ";
+                    cin >> choice;
 
-        case 2:
-            cout<<endl;
+                    system("cls");
+                    if(choice == 1){
+                        menu_play_previous();
+                    }else if(choice == 2){
+                        menu_play_new();
+                    }else if(choice == 0){
+                        break;
+                    }
+                }
+                break;
+            case 4:
+                system("cls");
+                menu_history();
+                break;
 
-            cout<<"1. basic maze\n"
-                  "2. advanced maze\n"
-                  "choose an option: ";
-
-            cin>>choice;
-
-            if(choice == 1){
-                menu_solve_basic_maze();
-            }else{
-                menu_solve_advanced_maze();
-            }
-            break;
-        case 3:
-            cout<<"1. play a previous maze\n"
-                  "2. play a new maze\n"
-                  "choose an option: ";
-            cin >> choice;
-
-            if(choice == 1){
-                menu_play_previous();
-            }
-
-            if(choice == 2){
-                menu_play_new();
-            }
-            break;
-        case 4:
-            menu_history();
-            break;
-        case 5:
-            break;
-        default:
-            break;
+            case 5:
+                break;
+            case 6:
+                return;
+            default:
+                break;
+        }
     }
 
+}
+
+int main() {
+
+    menu_welcome();
     return 0;
 }
