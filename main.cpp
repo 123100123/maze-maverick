@@ -259,7 +259,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
         if ((steps == total_steps) && (sum == table[ending_x][ending_y])) {
             return {{x, y}};
         }
-    } else if(steps<=total_steps){
+    } else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))){
         //down path
         if (is_valid(x + 1, y, width, height, table)) {
             vector<pair<int, int>> down_path = path(x + 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
@@ -514,7 +514,6 @@ void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<
     int sec = 0;
     int min = 0;
     while (!ended){
-
         sleep(1);
         total ++;
         if(sec <59){
@@ -555,7 +554,8 @@ string date(){
     return buffer;
 }
 
-void handle_endgame(string &mapName,string &username,string &time,bool &won){
+void handle_endgame(string &mapName,string &username,string &time,bool &won,int &total_time){
+    cout << total_time << endl;
     string result;
     if(won){
         result = "won";
@@ -577,11 +577,60 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won){
         filesystem::remove("./history/0.txt");
     }
 
-    cout<<username << " " << mapName << " " << time << " " << date() << result;
+    string date_str = date();
+    //cout<<username << " " << mapName << " " << time << " " << date_str << result;
 
     ofstream file("./history/"+to_string(1) +".txt");
     file << username << " " << mapName << " " << time << " " << date() << " " << result;
     file.close();
+
+    //stats
+    //total games
+    //wins
+    //last win
+    //total play time
+
+    if(filesystem::exists("./users/"+ username+".txt")){
+        ifstream file1("./users/"+ username+".txt");
+
+        string total_games_str,wins_str,last_win,play_time_str;
+
+        file1 >> total_games_str >> wins_str >> last_win >> play_time_str;
+
+        int total_games = stoi(total_games_str) +1;
+        int wins = stoi(wins_str);
+        last_win = date_str;
+        int play_time = stoi(play_time_str) + total_time;
+
+        if(won) {
+            wins++;
+            last_win = date_str;
+        }
+
+        file1.close();
+
+        ofstream file2("./users/"+ username+".txt");
+        file2 << total_games << endl << wins << endl << date_str << endl << play_time;
+
+        file2.close();
+
+    }else{
+        ofstream file2("./users/"+ username+".txt");
+
+        string wins;
+        if(won){
+            wins = "1";
+        }else{
+            wins = "0";
+            date_str = "no-wins";
+        }
+
+        file2 << "1" << endl << wins << endl << date_str << endl << total_time;
+
+        file2.close();
+    }
+
+
 }
 
 void play(vector<vector<int>> &table,int& len,string &mapName){
@@ -675,7 +724,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         cout<<"input username: ";
         cin >> username;
 
-        handle_endgame(mapName,username,time,won);
+        handle_endgame(mapName,username,time,won, total);
 
 
         bool try_again = false;
@@ -811,7 +860,11 @@ void menu_generate_basic_maze(){
     system("cls");
     vector<vector<int>> table = generate_basic_table(x,y);
     import_maze(table,x+y-2);
+
+    system("cls");
     print_table(table);
+    cout << endl << "0 to exit";
+    cin >> x;
 }
 
 void menu_generate_advanced_maze(){
@@ -837,10 +890,15 @@ void menu_generate_advanced_maze(){
 
     system("cls");
     vector<vector<int>> table = generate_advanced_table(x,y,min_wall,max_wall,min_num,max_num,path_len);
-    print_table(table);
 
-    cout<<endl;
+
     import_maze(table,path_len);
+    system("cls");
+
+
+    print_table(table);
+    cout << endl << "0 to exit: ";
+    cin >> x;
 }
 
 void menu_solve_advanced_maze(){
@@ -992,17 +1050,70 @@ void menu_play_history(){
 
         cout<< x <<". "<<username << " " << mapName << " " << time << " " << result << " " << date << endl;
     }
+    cout<<"0 to go back: ";
+
     cin >> x;
+    //system("cls");
+}
+
+void read_user(string &dir,string &username){
     system("cls");
+    //stats
+    //total games
+    //wins
+    //last win
+    //total play time
+    string total_games,wins,last_win,total_play_time;
+    ifstream file(dir);
+
+    file >> total_games >> wins >> last_win >> total_play_time;
+
+    cout<< "name: " << username << endl;
+    cout<< "games played: " << total_games <<endl;
+    cout<< "games won: " << wins <<endl;
+    cout<< "last win: " << last_win << endl;
+    cout<< "play time: " << total_play_time << endl;
+
+    int x;
+    cin >> x;
+}
+void menu_users(){
+    vector<string> names;
+
+
+    while(true){
+        int x = 0;
+        system("cls");
+        for (const auto & entry : filesystem::directory_iterator("./users")) {
+            x++;
+            string name =entry.path().filename().string();
+            name = name.substr(0,name.size()-4);
+            cout << x <<". " << name << endl;
+            names.push_back(name);
+
+        }
+        cout<<"choose a user(0 to quit): ";
+        int option;
+        cin >> option;
+        if(1 <= option && option <=x){
+            option --;
+            string dir = "./users/" + names[option] +".txt";
+            read_user(dir,names[option]);
+        }else if(option == 0){
+            break;
+        }
+    }
 }
 
 void menu_welcome(){
     while (true){
+        cout << "main menu";
+        system("cls");
         cout<<"1. create a maze \n"
               "2. solve a maze \n"
               "3. playground \n"
               "4. history\n"
-              "5. leaderboard \n"
+              "5. users \n"
               "6. exit\n"
               "choose an option: ";
         int choice;
@@ -1056,7 +1167,6 @@ void menu_welcome(){
                                 break;
                             }
                         }
-
                     }else if(choice == 0){
                         system("cls");
                         break;
@@ -1082,13 +1192,14 @@ void menu_welcome(){
                 }
                 break;
             case 4:
-                system("cls");
+                //system("cls");
                 //menu_history();
                 system("cls");
                 menu_play_history();
                 break;
 
             case 5:
+                menu_users();
                 break;
             case 6:
                 return;
@@ -1096,12 +1207,14 @@ void menu_welcome(){
                 break;
         }
     }
-
 }
 
 int main() {
-    if(!filesystem::is_directory("./history")){
+    if(!filesystem::is_directory("./history")) {
         filesystem::create_directory("./history");
+    }
+    if(!filesystem::is_directory("./users")) {
+        filesystem::create_directory("./users");
     }
     menu_welcome();
     return 0;

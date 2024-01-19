@@ -1,6 +1,5 @@
 # Ignore CLion project files and directories
 .idea/
-maps/
 *.iml
 *.ipr
 *.iws
@@ -14,3 +13,8 @@ cmake-build-debug/
 cmake-build-release/
 CMakeFiles/
 CMakeLists.txt
+
+# files made by user
+maps/
+history/
+users/
