@@ -612,7 +612,7 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won,int 
     //cout<<username << " " << mapName << " " << time << " " << date_str << result;
 
     ofstream file("./history/"+to_string(1) +".txt");
-    file << username << " " << mapName << " " << time << " " << date() << " " << result;
+    file << username << endl << mapName << endl << time << endl << date() << endl << result;
     file.close();
 
     //stats
@@ -753,7 +753,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
 
         string username;
         cout<<"input username: ";
-        cin >> username;
+        getline(cin >> ws, username);
 
         handle_endgame(mapName,username,time,won, total);
 
@@ -895,11 +895,27 @@ void input_to_exit(){
 
 void menu_generate_basic_maze(){
     system("cls");
-    int width = get_number("input width: ");
+    int width;
+    while(true){
+        width = get_number("input width: ");
+        if(width >= 3){
+            break;
+        }else{
+            cout<<"wrong input" <<endl;
+        }
+    }
 
     system("cls");
 
-    int height = get_number("input height: ");
+    int height;
+    while(true){
+        height = get_number("input height: ");
+        if(height >= 3){
+            break;
+        }else{
+            cout << "wrong input";
+        }
+    }
 
     system("cls");
 
@@ -1115,7 +1131,7 @@ void menu_solve_existing_maze(){
 
     vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
 
-
+    system("cls");
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
         print_colored_table(table,result,0);
@@ -1183,10 +1199,14 @@ void menu_play_history(){
         ifstream file("./history/" + to_string(x) + ".txt");
 
         string username,mapName,date,result,time;
+        getline(file >>ws,username);
+        getline(file >>ws,mapName);
+        getline(file >>ws,time);
+        getline(file >>ws,date);
+        getline(file >> ws,result);
+        //file>>mapName >> time >> date >> result;
 
-        file >> username >>mapName >> time >> date >> result;
-
-        cout<< x <<". "<<username << " " << mapName << " " << time << " " << result << " " << date << endl;
+        cout<< x <<". "<<username << "--" << mapName << "--" << time << "--" << result << "--" << date << endl;
     }
 
     input_to_exit();
