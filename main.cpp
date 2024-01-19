@@ -543,7 +543,48 @@ void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<
     }
 }
 
-void play(vector<vector<int>> &table,int& len){
+
+string date(){
+    auto currentTime = chrono::system_clock::now();
+
+    time_t time = chrono::system_clock::to_time_t(currentTime);
+
+    char buffer[11];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d", localtime(&time));
+
+    return buffer;
+}
+
+void handle_endgame(string &mapName,string &username,string &time,bool &won){
+    string result;
+    if(won){
+        result = "won";
+    }else{
+        result = "lost";
+    }
+
+    int previous = 0;
+    for (const auto & entry : filesystem::directory_iterator("./history")) {
+        previous ++;
+    }
+
+    for(int x = 2 ; x <= previous +1; x++){
+        string last_name = "./history/" + to_string(x-1) + ".txt";
+        string new_name = "./history/" + to_string(x) + ".txt";
+        rename(last_name.c_str(),new_name.c_str());
+    }
+    if(filesystem::exists("./history/11.txt")){
+        filesystem::remove("./history/0.txt");
+    }
+
+    cout<<username << " " << mapName << " " << time << " " << date() << result;
+
+    ofstream file("./history/"+to_string(1) +".txt");
+    file << username << " " << mapName << " " << time << " " << date() << " " << result;
+    file.close();
+}
+
+void play(vector<vector<int>> &table,int& len,string &mapName){
     int width = table[0].size();
     int height = table.size();
     vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
@@ -618,16 +659,24 @@ void play(vector<vector<int>> &table,int& len){
         }else{
             won = false;
         }
+
+
         if(won){
             system("cls");
             cout<<"WON"<<endl;
-            break;
         }else{
             system("cls");
             cout<<"LOST"<<endl;
         }
 
         print_end_game_table(table,passed,path_found,won);
+
+        string username;
+        cout<<"input username: ";
+        cin >> username;
+
+        handle_endgame(mapName,username,time,won);
+
 
         bool try_again = false;
         while(true){
@@ -844,7 +893,7 @@ void menu_play_previous(){
     string dir = "./maps/" + name + "/map.txt";
     vector<vector<int>> table = read_maze(len,dir);
 
-    play(table,len);
+    play(table,len,name);
 }
 
 void menu_play_new(){
@@ -853,7 +902,9 @@ void menu_play_new(){
     cout<<"input path length: ";
     int len;
     cin>>len;
-    play(table,len);
+
+    string name = "No-Name";
+    play(table,len,name);
 }
 
 void menu_solve_existing_maze(){
@@ -883,7 +934,8 @@ void menu_play_through_history(string &dir){
     int len;
     vector<vector<int>> table = read_maze(len,dir);
 
-    play(table,len);
+    string name = "No-Name";
+    play(table,len,name);
 }
 void menu_history(){
     if(!filesystem::is_directory("./maps")){
@@ -921,6 +973,27 @@ void menu_history(){
             }
         }
     }
+}
+
+void menu_play_history(){
+    if(!filesystem::exists("./history/1.txt")){
+        cout<<"no recent games";
+    }
+
+    int x = 0;
+    for (const auto & entry : filesystem::directory_iterator("./history/")) {
+        x++;
+
+        ifstream file("./history/" + to_string(x) + ".txt");
+
+        string username,mapName,date,result,time;
+
+        file >> username >>mapName >> time >> date >> result;
+
+        cout<< x <<". "<<username << " " << mapName << " " << time << " " << result << " " << date << endl;
+    }
+    cin >> x;
+    system("cls");
 }
 
 void menu_welcome(){
@@ -1010,29 +1083,9 @@ void menu_welcome(){
                 break;
             case 4:
                 system("cls");
-                menu_history();
-                break;
-
-            case 5:
-                break;
-            case 6:
-                return;
-            default:
-                break;
-        }
-                    system("cls");
-                    if(choice == 1){
-                        menu_play_previous();
-                    }else if(choice == 2){
-                        menu_play_new();
-                    }else if(choice == 0){
-                        break;
-                    }
-                }
-                break;
-            case 4:
+                //menu_history();
                 system("cls");
-                menu_history();
+                menu_play_history();
                 break;
 
             case 5:
@@ -1047,7 +1100,9 @@ void menu_welcome(){
 }
 
 int main() {
-
+    if(!filesystem::is_directory("./history")){
+        filesystem::create_directory("./history");
+    }
     menu_welcome();
     return 0;
 }
