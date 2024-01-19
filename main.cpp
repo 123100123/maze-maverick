@@ -259,7 +259,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
         if ((steps == total_steps) && (sum == table[ending_x][ending_y])) {
             return {{x, y}};
         }
-    } else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))){
+    } else if(total_steps-steps+1 >= ((ending_x-x) + (ending_y - y))){
         //down path
         if (is_valid(x + 1, y, width, height, table)) {
             vector<pair<int, int>> down_path = path(x + 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
@@ -307,7 +307,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
         if (steps == total_steps) {
             return {{x, y}};
         }
-    } else if(steps<=total_steps){
+    } else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))){
         // randomly choose which way to check(up, down, left, or right)
 
         int random_num = rand_range(1,4);
@@ -457,7 +457,10 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     if(empty_num==0){
         empty_num++;
     }
+
+
     vector<pair<int,int>> empty_coordinates;  //keep track of empty blocks
+
     for(int i = 0; i<= x-1;i++){
         for(int j=0; j <= y-1;j++){
             empty_coordinates.emplace_back(i,j);
@@ -467,6 +470,7 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
 
     vector<vector<int>> table(y, vector<int>(x, empty_num));    //table layout
     vector<pair<int,int>> way = generate_adv_path(0,0,0,total_steps,x,y,table,y-1,x-1);
+
 
     int sum =0;
     for(const pair<int,int>& step : way){
