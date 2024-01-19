@@ -813,10 +813,13 @@ void import_maze(vector<vector<int>> &table, int len){
 
 vector<vector<int>> input_maze(){
     system("cls");
-    cout << "input width and height(exp: x y): ";
+    cout << "input width: ";
     int x;
-    int y;
     cin >> x;
+
+    system("cls");
+    cout << "input height: ";
+    int y;
     cin >> y;
 
     system("cls");
