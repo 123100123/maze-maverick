@@ -1020,6 +1020,28 @@ void menu_welcome(){
             default:
                 break;
         }
+                    system("cls");
+                    if(choice == 1){
+                        menu_play_previous();
+                    }else if(choice == 2){
+                        menu_play_new();
+                    }else if(choice == 0){
+                        break;
+                    }
+                }
+                break;
+            case 4:
+                system("cls");
+                menu_history();
+                break;
+
+            case 5:
+                break;
+            case 6:
+                return;
+            default:
+                break;
+        }
     }
 
 }
