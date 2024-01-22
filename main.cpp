@@ -586,6 +586,15 @@ int get_number(string question){
 }
 
 
+void input_to_exit(){
+    while(true){
+        cout<<"input to exit: ";
+        string x;
+        cin>>x;
+        break;
+    }
+}
+
 void handle_endgame(string &mapName,string &username,string &time,bool &won,int &total_time){
     string result;
     if(won){
@@ -595,18 +604,24 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won,int 
     }
 
     int previous = 0;
-    for (const auto & entry : filesystem::directory_iterator("./history")) {
+    for (auto & entry : filesystem::directory_iterator("./history")) {
         previous ++;
     }
 
-    for(int x = 2 ; x <= previous +1; x++){
-        string last_name = "./history/" + to_string(x-1) + ".txt";
-        string new_name = "./history/" + to_string(x) + ".txt";
+    for(int x = previous ; x >=1; x--){
+        //cout<<x << " ";
+        string last_name = "./history/" + to_string(x) + ".txt";
+        string new_name = "./history/" + to_string(x+1) + ".txt";
+
+        //cout << last_name << endl << new_name << endl;
         rename(last_name.c_str(),new_name.c_str());
     }
+
+
     if(filesystem::exists("./history/11.txt")){
-        filesystem::remove("./history/0.txt");
+        filesystem::remove("./history/11.txt");
     }
+
 
     string date_str = date();
     //cout<<username << " " << mapName << " " << time << " " << date_str << result;
@@ -660,6 +675,8 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won,int 
 
         file2.close();
     }
+
+    //input_to_exit();
 
 
 }
@@ -719,6 +736,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
                 y = passed[passed.size()-1].second;
             }
             else if(key == 'q'){
+                ended = true;
                 t1.join();
                 return;
             }
@@ -740,12 +758,11 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
             won = false;
         }
 
-
+        system("cls");
         if(won){
-            system("cls");
             cout<<"WON"<<endl;
         }else{
-            system("cls");
+
             cout<<"LOST"<<endl;
         }
 
@@ -881,16 +898,6 @@ vector<vector<int>> read_maze(int &len,string &address){
     map >> len;
     map.close();
     return table;
-}
-
-
-void input_to_exit(){
-    while(true){
-        cout<<"input to exit: ";
-        string x;
-        cin>>x;
-        break;
-    }
 }
 
 void menu_generate_basic_maze(){
@@ -1234,12 +1241,12 @@ void menu_leaderboard(){
     }
 
     sort(players.begin(), players.end(), compare_sort);
-    cout << "   name -- wins -- playtime" <<endl;
+    cout << "   name |--| wins |--| playtime" <<endl;
     int x =0;
     for(const Player &player: players){
         if(x <= 2){
             x++;
-            cout << x << ". " << player.name << " -- " << player.wins << " -- " << player.playtime << endl;
+            cout << x << ". " << player.name << " |--| " << player.wins << " |--| " << player.playtime << endl;
         }else{
             break;
         }
@@ -1268,7 +1275,7 @@ void menu_play_history(){
         getline(file >> ws,result);
         //file>>mapName >> time >> date >> result;
 
-        cout<< x <<". "<<username << "--" << mapName << "--" << time << "--" << result << "--" << date << endl;
+        cout<< x <<". "<<username << "|--|" << mapName << "|--|" << time << "|--|" << result << "|--|" << date << endl;
     }
 
     input_to_exit();
@@ -1296,8 +1303,6 @@ void read_user(string &dir,string &username){
 }
 void menu_users(){
     vector<string> names;
-
-
     while(true){
         int x = 0;
         system("cls");
