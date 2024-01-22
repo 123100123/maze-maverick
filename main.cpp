@@ -1110,6 +1110,7 @@ void menu_play_new(){
 }
 
 void menu_solve_existing_maze(){
+    system("cls");
     string name = map_name();
     //quit if 0
     if(name == "!@#$"){
@@ -1186,6 +1187,67 @@ void menu_history(){
         }
     }
 }
+
+
+struct Player{
+    string name;
+    int wins;
+    int playtime;
+};
+
+
+void get_info(string dir,int &wins,int &play_time){
+    //stats
+    //total games
+    //wins
+    //last win
+    //total play time
+    string total_games,last_win;
+    ifstream file(dir);
+    file >> total_games >> wins >> last_win >> play_time;
+
+    file.close();
+}
+
+bool compare_sort(const Player &a,const Player &b){
+    if(a.wins != b.wins){
+        return a.wins > b.wins;
+    }else{
+        return a.playtime < b.playtime;
+    }
+}
+
+void menu_leaderboard(){
+    vector<Player> players;
+    for (const auto & entry : filesystem::directory_iterator("./users/")) {
+        string name =entry.path().filename().string();
+        name = name.substr(0,name.size()-4);
+        int wins,playtime;
+        get_info("./users/"+name+".txt",wins,playtime);
+
+        Player player;
+        player.name = name;
+        player.wins = wins;
+        player.playtime = playtime;
+
+        players.push_back(player);
+    }
+
+    sort(players.begin(), players.end(), compare_sort);
+    cout << "   name -- wins -- playtime" <<endl;
+    int x =0;
+    for(const Player &player: players){
+        if(x <= 2){
+            x++;
+            cout << x << ". " << player.name << " -- " << player.wins << " -- " << player.playtime << endl;
+        }else{
+            break;
+        }
+    }
+
+    input_to_exit();
+}
+
 
 void menu_play_history(){
     if(!filesystem::exists("./history/1.txt")){
@@ -1276,7 +1338,8 @@ void menu_welcome(){
                 "3. playground \n"
                 "4. history\n"
                 "5. users \n"
-                "6. exit\n"
+                "6. leader board \n"
+                "7. exit\n"
                 "choose an option: ";
         int choice = get_number(question);
 
@@ -1369,6 +1432,9 @@ void menu_welcome(){
                 menu_users();
                 break;
             case 6:
+                menu_leaderboard();
+                break;
+            case 7:
                 return;
             default:
                 break;
