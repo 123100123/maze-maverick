@@ -730,7 +730,8 @@ string map_name(){
     }
 }
 
-void import_maze(vector<vector<int>> &table, int len){
+string global_name;
+void export_maze(vector<vector<int>> &table, int len){
     int x = table[0].size();
     int y = table.size();
 
@@ -750,7 +751,7 @@ void import_maze(vector<vector<int>> &table, int len){
         }
     }
 
-
+    global_name = name;
 
     ofstream map("./maps/"+name+"/map.txt");
     map << x << " " << y << endl;
@@ -835,7 +836,7 @@ void menu_generate_basic_maze(){
     system("cls");
 
     vector<vector<int>> table = generate_basic_table(width,height);
-    import_maze(table,width+height-2);
+    export_maze(table, width + height - 2);
 
     system("cls");
     print_table(table);
@@ -854,8 +855,6 @@ void menu_generate_advanced_maze(){
             system("cls");
         }
     }
-
-
 
 
     system("cls");
@@ -938,7 +937,7 @@ void menu_generate_advanced_maze(){
     vector<vector<int>> table = generate_advanced_table(width,height,min_wall,max_wall,min_num,max_num,path_len);
 
 
-    import_maze(table,path_len);
+    export_maze(table, path_len);
     system("cls");
 
 
@@ -957,6 +956,10 @@ void menu_solve_advanced_maze(){
 
     int len = get_number("input the length of the path: ");
 
+    system("cls");
+
+    export_maze(table, len);
+    system("cls");
 
     int y = table.size();
     int x = table[0].size();
@@ -981,6 +984,10 @@ void menu_solve_basic_maze(){
     int x = table[0].size();
     int y = table.size();
 
+    system("cls");
+
+    export_maze(table, x + y - 2);
+    system("cls");
 
     vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
 
@@ -1016,13 +1023,16 @@ void menu_play_previous(){
 
 void menu_play_new(){
     vector<vector<int>> table = input_maze();
-
     cout<<"input path length: ";
     int len;
     cin>>len;
 
-    string name = "No-Name";
-    play(table,len,name);
+    system("cls");
+    export_maze(table, len);
+
+    system("cls");
+
+    play(table,len,global_name);
 }
 
 void menu_solve_existing_maze(){
@@ -1043,14 +1053,11 @@ void menu_solve_existing_maze(){
     int len;
     vector<vector<int>> table = read_maze(len,dir);
 
-    cout << len <<endl;
-
     int x = table[0].size();
     int y = table.size();
 
     vector<pair<int, int>> result = path(0, 0, 0, 0,len, x, y, table, y - 1, x - 1);
 
-    input_to_exit();
 
     system("cls");
     if(!result.empty()){
@@ -1210,7 +1217,7 @@ void read_user(string &dir,string &username){
     cout<< "games played: " << total_games <<endl;
     cout<< "games won: " << wins <<endl;
     cout<< "last win: " << last_win << endl;
-    cout<< "play time: " << total_play_time << endl;
+    cout<< "playtime: " << total_play_time << endl;
 
     input_to_exit();
 }
