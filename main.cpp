@@ -1411,8 +1411,8 @@ void menu_welcome(){
                 while(true){
                     system("cls");
                     question =
-                            "1. basic maze\n"
-                            "2. advanced maze\n"
+                            "1. creat a basic maze\n"
+                            "2. create an advanced maze\n"
                             "choose an option(0 to go back): ";
                     choice = get_number(question);
                     system("cls");
@@ -1443,8 +1443,8 @@ void menu_welcome(){
                         while(true){
                             system("cls");
                             question =
-                                    "1. basic maze\n"
-                                    "2. advanced maze\n"
+                                    "1. solve a basic maze\n"
+                                    "2. solve an advanced maze\n"
                                     "choose an option(0 to go back): ";
                             choice = get_number(question);
                             if (choice == 1) {
