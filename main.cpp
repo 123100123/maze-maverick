@@ -506,9 +506,9 @@ void input_to_exit(){
 void handle_endgame(string &mapName,string &username,string &time,bool &won,int &total_time){
     string result;
     if(won){
-        result = "won";
+        result = "Won";
     }else{
-        result = "lost";
+        result = "Lost";
     }
 
     int previous = 0;
@@ -599,7 +599,9 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
     while(true){
         bool ended = false;
         string time;
-        int total;
+        int total_time;
+
+        int sum = 0;
 
         vector<pair<int, int>> passed = {
                 {0, 0}
@@ -610,7 +612,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         char key;
 
         int move_index = 0;
-        thread t1(stop_watch,ref(time),ref(total),ref(table),ref(passed),ref(ended));
+        thread t1(stop_watch, ref(time), ref(total_time), ref(table), ref(passed), ref(ended));
         while (true){
             cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) "<<endl;
             cout<<time<<endl;
@@ -654,19 +656,17 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         }
         ended = true;
         t1.join();
-        bool won = true;
-        if(passed.size() == path_found.size()){
-            for(int i =0; i <= passed.size()-1;i++){
-                if(passed[i] != path_found[i]){
-                    won = false;
-                    break;
-                }
-            }
-        }else{
-            won = false;
+
+        for(pair<int,int> &block : passed){
+            sum += table[block.first][block.second];
+
         }
+        sum -= table[height-1][width-1];
+        bool won = (passed.size()-1 == len) && (sum == table[height-1][width-1]);
+
 
         system("cls");
+
         if(won){
             cout<<"WON"<<endl;
         }else{
@@ -680,7 +680,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         cout<<"input username: ";
         getline(cin >> ws, username);
 
-        handle_endgame(mapName,username,time,won, total);
+        handle_endgame(mapName, username, time, won, total_time);
 
 
         bool try_again = false;
@@ -1217,7 +1217,20 @@ void read_user(string &dir,string &username){
     cout<< "games played: " << total_games <<endl;
     cout<< "games won: " << wins <<endl;
     cout<< "last win: " << last_win << endl;
-    cout<< "playtime: " << total_play_time << endl;
+
+    int sec = stoi(total_play_time) % 60;
+    int min = stoi(total_play_time) /60;
+
+    string min_str = to_string(min),sec_str(to_string(sec));
+    if(min_str.size() == 1){
+        min_str = "0" + min_str;
+    }
+    if(sec_str.size() == 1){
+        sec_str = "0" + sec_str;
+    }
+
+
+    cout<< "playtime: " << min_str << ":" << sec_str << endl;
 
     input_to_exit();
 }
