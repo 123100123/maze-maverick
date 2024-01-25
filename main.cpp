@@ -449,7 +449,7 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     return table;
 }
 
-void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<int,int>> &passed, bool &ended){
+void stop_watch(string &time, vector<vector<int>> &table,vector<pair<int,int>> &passed, bool &ended){
     int sec = 0;
     int min = 0;
     while (!ended){
@@ -618,11 +618,10 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
     vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
     path_found.emplace_back(height-1,width-1);
 
-
+    auto start_time = chrono::high_resolution_clock::now();
     while(true){
         bool ended = false;
         string time;
-        int total_time;
 
         int sum = 0;
 
@@ -635,7 +634,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         char key;
 
         int move_index = 0;
-        thread t1(stop_watch, ref(time), ref(total_time), ref(table), ref(passed), ref(ended));
+        thread t1(stop_watch, ref(time), ref(table), ref(passed), ref(ended));
         while (true){
             cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) "<<endl;
             cout<<time<<endl;
@@ -680,12 +679,15 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         ended = true;
         t1.join();
 
+        auto end_time = chrono::high_resolution_clock::now();
+        int duration = chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+
         for(pair<int,int> &block : passed){
             sum += table[block.first][block.second];
-
         }
         sum -= table[height-1][width-1];
         bool won = (passed.size()-1 == len) && (sum == table[height-1][width-1]);
+
 
 
         system("cls");
@@ -703,7 +705,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         cout<<"input username: ";
         getline(cin >> ws, username);
 
-        handle_endgame(mapName, username, time, won, total_time);
+        handle_endgame(mapName, username, time, won, duration);
 
 
         bool try_again = false;
