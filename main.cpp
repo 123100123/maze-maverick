@@ -22,11 +22,11 @@ using namespace std;
 #define GREEN   "\033[32m"
 #define BLUE    "\033[34m"
 
-//printing tables
+//Printing the Blank White Table
 void print_table(const vector<vector<int>>& table) {
     int rows = table.size();
 
-    //find how much the space be
+    // Calculating the Space Sizes Between Each Number
     int width = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
@@ -37,7 +37,7 @@ void print_table(const vector<vector<int>>& table) {
         }
     }
 
-    //print the table based on the space we need
+    //Printing the Table Using the Spaces Found
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
             cout << setw(width) << table[i][j] << " ";
@@ -46,7 +46,7 @@ void print_table(const vector<vector<int>>& table) {
     }
 }
 
-
+// Checking if a Certain Iterated Element is in the Vector
 bool isPairInVector(const vector<pair<int, int>>& vec, const pair<int, int>& target) {
     for (const auto& element : vec) {
         if (element == target) {
@@ -56,10 +56,11 @@ bool isPairInVector(const vector<pair<int, int>>& vec, const pair<int, int>& tar
     return false;
 }
 
+// One Function To Print The Solved Maze And The Maze While Playing
 void print_colored_table(const vector<vector<int>>& table,vector<pair<int,int>> &passed_blocks,int color){
     int rows = table.size();
 
-    //find how much the space be
+    // Calculating the Space Sizes Between Each Number
     int width = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
@@ -70,8 +71,9 @@ void print_colored_table(const vector<vector<int>>& table,vector<pair<int,int>> 
         }
     }
 
-    //green 0       blue 1
+    // Green --> 0   Blue --> 1
 
+    // Green For The Solved Maze And Blue While The Player Is Playing
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
             if(isPairInVector(passed_blocks,{i,j})){
@@ -88,10 +90,12 @@ void print_colored_table(const vector<vector<int>>& table,vector<pair<int,int>> 
     }
 
 }
+
+// Function For Printing The Table After The Game Has Been Played
 void print_end_game_table(const vector<vector<int>>& table,vector<pair<int,int>> &passed_blocks,vector<pair<int,int>> &path,bool won){
     int rows = table.size();
 
-    //find how much the space be
+    // Calculating the Space Sizes Between Each Number
     int width = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
@@ -102,6 +106,7 @@ void print_end_game_table(const vector<vector<int>>& table,vector<pair<int,int>>
         }
     }
 
+    // Printing the Correct Path Green 
     if(won){
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < table[i].size(); j++) {
@@ -113,7 +118,9 @@ void print_end_game_table(const vector<vector<int>>& table,vector<pair<int,int>>
             }
             cout << endl;
         }
-    }else{
+    }
+    //Printing the Correct Steps Green And The Wrong Ones Red
+    else{
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < table[i].size(); j++) {
                 if(isPairInVector(passed_blocks,{i,j})){
@@ -132,11 +139,9 @@ void print_end_game_table(const vector<vector<int>>& table,vector<pair<int,int>>
 
 }
 
-
-
-//random number generation
+// Random Number Generator 
 int rand_range(int min, int max) {
-    //seed
+    // Seed
     random_device rd;
     mt19937 gen(rd());
 
@@ -144,7 +149,8 @@ int rand_range(int min, int max) {
 
     return dis(gen);
 }
-//random number generation but overlooking 0
+
+// Random Number Generator Disregarding 0
 int non_zero_element(int min, int max) {
     int seed = 0;
     while (seed == 0) {
@@ -154,9 +160,10 @@ int non_zero_element(int min, int max) {
     return seed;
 }
 
-
+// Path Finding For Basic Maze
 vector<int> generate_the_way(int rights, int downs) {
-    //in basic tables there should always be (x-1) rights and (y-1) downs to reach the end
+    // In The Basic Maze You Should Go (x-1) Steps Down And (y-1) Steps Right
+    // We Generated A Vector Of 1's And 0's And Shuffled Them To Make The Path 
     vector<int> resultVector;
 
     for (int i = 0; i < downs; ++i) {
@@ -166,17 +173,17 @@ vector<int> generate_the_way(int rights, int downs) {
         resultVector.push_back(0);
     }
 
-    //shuffle
+    // Shuffle 
     random_device rd;
     mt19937 g(rd());
     shuffle(resultVector.begin(), resultVector.end(), g);
     return resultVector;
 }
 
+//Generating The Basic Table
 vector<vector<int>> generate_basic_table(int x, int y){
-    //generate the table with all nines
+    // First We Generate A Table with All The Cell Values Being 9 
     vector<vector<int>> table(y, vector<int>(x, 9));
-
 
     vector<pair<int,int>> empty_coordinates;
     for(int i = 0; i<= x-1;i++){
@@ -185,16 +192,16 @@ vector<vector<int>> generate_basic_table(int x, int y){
         }
     }
 
-
-    //generate where to go (right or down)
+    // Generating The Random Path
     vector<int> way = generate_the_way(x-1,y-1);
 
-    //generate the path based on the way we got
+    // Filling The Cells In The Path With Numbers And Calculating Sum
     int sum = 0;
     int i=0,j=0;
     int generated = non_zero_element(-3,3);
     table[i][j] = generated;
     sum += generated;
+
     empty_coordinates.erase(empty_coordinates.begin());
     empty_coordinates.erase(empty_coordinates.begin()+empty_coordinates.size()-1);
 
@@ -213,6 +220,7 @@ vector<vector<int>> generate_basic_table(int x, int y){
         table[i][j] = generated;
     }
 
+    //Sum Of All The Cell Values Not Being 0
     if(sum != 0){
         table[y-1][x-1] = sum ;
     }else{
@@ -220,8 +228,7 @@ vector<vector<int>> generate_basic_table(int x, int y){
         table[y-1][x-1] ++;
     }
 
-
-    //generate the walls
+    // Adding The Walls To The Cells Not In The Path
     int wall_amount = min(rand_range(2,5),int(empty_coordinates.size()));
 
     random_device rd;
@@ -233,35 +240,34 @@ vector<vector<int>> generate_basic_table(int x, int y){
         empty_coordinates.erase(empty_coordinates.begin());
     }
 
-
-
     for(pair<int,int> &z : empty_coordinates){
         table[z.second][z.first] = non_zero_element(-3,3);
     }
 
     return table;
-
 }
 
-//pathfinding
+// Checking If The Steps Taken Are In The Boundaries Of The Table
 bool is_valid(const int& x, const int& y, const int& width, const int& height, const vector<vector<int>>& table) {
     return x >= 0 && x < height &&
            y >= 0 && y < width &&
            table[x][y] != 0;
 }
+
+// Recursive DFS Algorithm For Finding Advanced Path  
 vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
-    //starts from (0,0) and keeps checking left,right, up and down for valid blocks
+    // Going From The Start Position , Checking -left Right Up Down- For A Path
     sum += table[x][y];
     table[x][y] = 0;
     steps += 1;
 
-    //stops if the next block(right or left) was the ending block
+    // Stops If End Has Been Reached
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
         if ((steps == total_steps) && (sum == table[ending_x][ending_y])) {
             return {{x, y}};
         }
     } else if(total_steps-steps+1 >= ((ending_x-x) + (ending_y - y))){
-        //down path
+        // Down
         if (is_valid(x + 1, y, width, height, table)) {
             vector<pair<int, int>> down_path = path(x + 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
             if (!down_path.empty()) {
@@ -269,7 +275,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
                 return down_path;
             }
         }
-        //right path
+        // Right
         if (is_valid(x, y + 1, width, height, table)) {
             vector<pair<int, int>> right_path = path(x, y + 1, steps, sum,total_steps, width, height, table, ending_x, ending_y);
             if (!right_path.empty()) {
@@ -277,7 +283,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
                 return right_path;
             }
         }
-        //up path
+        // Up
         if (is_valid(x - 1, y, width, height, table)) {
             vector<pair<int, int>> up_path = path(x - 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
             if (!up_path.empty()) {
@@ -285,7 +291,7 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
                 return up_path;
             }
         }
-        //left_path
+        // Left
         if (is_valid(x, y - 1, width, height, table)) {
             vector<pair<int, int>> left_path = path(x, y - 1, steps, sum, total_steps,width, height, table, ending_x, ending_y);
             if (!left_path.empty()) {
@@ -294,26 +300,28 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
             }
         }
     }
-    //return empty so that the way wouldn't continue to be checked
+    // Returning An Empty Vector If A Path Not Found
     return {};
 }
 
 
-//generate the coordinates to reach the end
+// Generating The Path For The Advanced Part Of The Maze Using DFS Algorithm
 vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
     table[x][y] = 0;
     steps += 1;
+    // Stoping When End has Been Reached 
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
         if (steps == total_steps) {
             return {{x, y}};
         }
-    } else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))){
-        // randomly choose which way to check(up, down, left, or right)
-
+    } 
+    else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))){
+        //Randomizing The Order In which The Algorithm Checks -Left Right Down Up-
         int random_num = rand_range(1,4);
-        //check orders are listed below and the algorithm is like the pathfinding
 
-        if(random_num == 1){                                         //down,up,right,left
+        // Recursive DFS Algorithm For Finding Advanced Path  
+        if(random_num == 1){             
+            // Down                           
             if (is_valid(x + 1, y, width, height, table)) {
                 vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!down_path.empty()) {
@@ -321,7 +329,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return down_path;
                 }
             }
-
+            // Up
             if (is_valid(x - 1, y, width, height, table)) {
                 vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!up_path.empty()) {
@@ -329,7 +337,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return up_path;
                 }
             }
-
+            // Right 
             if (is_valid(x, y + 1, width, height, table)) {
                 vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!right_path.empty()) {
@@ -337,7 +345,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return right_path;
                 }
             }
-
+            // Left
             if (is_valid(x, y - 1, width, height, table)) {
                 vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
                 if (!left_path.empty()) {
@@ -347,7 +355,8 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
             }
 
         }
-        else if(random_num == 2){                                  //left,up,right,down
+        else if(random_num == 2){
+            // Left
             if (is_valid(x, y - 1, width, height, table)) {
                 vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
                 if (!left_path.empty()) {
@@ -355,7 +364,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return left_path;
                 }
             }
-
+            // Down
             if (is_valid(x + 1, y, width, height, table)) {
                 vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!down_path.empty()) {
@@ -363,7 +372,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return down_path;
                 }
             }
-
+            // Up
             if (is_valid(x - 1, y, width, height, table)) {
                 vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!up_path.empty()) {
@@ -371,6 +380,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return up_path;
                 }
             }
+            // Right
             if (is_valid(x, y + 1, width, height, table)) {
                 vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!right_path.empty()) {
@@ -379,7 +389,8 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                 }
             }
 
-        }else if(random_num == 3){                                   //right,left,down,up
+        }else if(random_num == 3){
+            // Right 
             if (is_valid(x, y + 1, width, height, table)) {
                 vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!right_path.empty()) {
@@ -387,7 +398,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return right_path;
                 }
             }
-
+            // Left
             if (is_valid(x, y - 1, width, height, table)) {
                 vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
                 if (!left_path.empty()) {
@@ -395,7 +406,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return left_path;
                 }
             }
-
+            // Down
             if (is_valid(x + 1, y, width, height, table)) {
                 vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!down_path.empty()) {
@@ -403,7 +414,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return down_path;
                 }
             }
-
+            // Up
             if (is_valid(x - 1, y, width, height, table)) {
                 vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!up_path.empty()) {
@@ -412,7 +423,8 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                 }
             }
 
-        }else{                                                       //right,left,down,up
+        }else{
+            // Right
             if (is_valid(x, y + 1, width, height, table)) {
                 vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!right_path.empty()) {
@@ -420,7 +432,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return right_path;
                 }
             }
-
+            // Left
             if (is_valid(x, y - 1, width, height, table)) {
                 vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
                 if (!left_path.empty()) {
@@ -428,7 +440,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return left_path;
                 }
             }
-
+            // Down
             if (is_valid(x + 1, y, width, height, table)) {
                 vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!down_path.empty()) {
@@ -436,7 +448,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
                     return down_path;
                 }
             }
-
+            // Up
             if (is_valid(x - 1, y, width, height, table)) {
                 vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
                 if (!up_path.empty()) {
@@ -447,18 +459,20 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
         }
     }
 
-    //returns empty not to follow the wrong path
+    // Returing Empty Vector If A Path Not Found
     return {};
 }
 
+// Generating The Advanced Table And It's Path
 vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int& min_wall,const int& max_wall,const int& min_num,const int& max_num,const int& total_steps){
+    
     int empty_num = max_num +1;  //what to fill the first iteration with
     if(empty_num==0){
         empty_num++;
     }
 
-
-    vector<pair<int,int>> empty_coordinates;  //keep track of empty blocks
+    // First Keeping Track Of All Coordinates
+    vector<pair<int,int>> empty_coordinates;
 
     for(int i = 0; i<= x-1;i++){
         for(int j=0; j <= y-1;j++){
@@ -466,23 +480,24 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
         }
     }
 
-
-    vector<vector<int>> table(y, vector<int>(x, empty_num));    //table layout
+    // First Filling All The Cells With The 'empty_num' Value Then Generating The Path
+    vector<vector<int>> table(y, vector<int>(x, empty_num));
     vector<pair<int,int>> way = generate_adv_path(0,0,0,total_steps,x,y,table,y-1,x-1);
 
-
-    int sum =0;
+    // Fill The Path With Numbers Between Max And Min Value Given For Each Cell
+    // Keep Track Of The Sum Value
+    int sum=0;
     for(const pair<int,int>& step : way){
-        //remove the filled blocks from the empty set
+        // Remove The Coordinates Of The Path From The Vector 'empty_coordinates'
         empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), make_pair(step.second,step.first)), empty_coordinates.end());
 
+        // As Said In The Beggining
         int random_num = non_zero_element(min_num,max_num);
-        //cout<<step.first<<" "<<step.second<<" /"<<random_num<<endl;
         sum += random_num;
         table[step.first][step.second] = random_num;
     }
 
-    //the last block shouldn't be 0
+    // The Sum Shouldn't Equal 0
     if(sum==0){
         sum = 1;
         table[way[way.size()-1].first][way[way.size()-1].second] -= 1;
@@ -490,22 +505,20 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     empty_coordinates.pop_back();
     table[y-1][x-1] = sum;
 
-
+    // Shuffle The Rest Of The Cell's Coordinates And Put Walls In Random Positions
     int wall_amount = min(rand_range(min_wall,max_wall),x*y-total_steps);
-
-    //shuffle the empty coords
     random_device rd;
     mt19937 g(rd());
     shuffle(empty_coordinates.begin(), empty_coordinates.end(),g);
 
-
-    //fill the shuffled list of empty blocks with 0
+    // Fill The Cells With Walls Or 0's
     for(int i = 0 ; i<wall_amount;i++){
         pair<int,int> current = empty_coordinates[i];
         table[current.second][current.first] = 0;
         empty_coordinates.erase(empty_coordinates.begin());
     }
 
+    // Fill The Rest Of The Non-Path And Non-Wall Cells With Random Numbers
     for(pair<int,int> &z : empty_coordinates){
         table[z.second][z.first] = non_zero_element(min_num,max_num);
     }
@@ -513,6 +526,7 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     return table;
 }
 
+// Showing The Playing Time For Each Player Each Second
 void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<int,int>> &passed, bool &ended){
     int sec = 0;
     int min = 0;
@@ -540,12 +554,12 @@ void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<
         system("cls");
 
         print_colored_table(table,passed,1);
-        cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) "<<endl;
+        cout<<" w(Up)  s(Down)  d(Right)  a(Left)  z(Go Back)  q(Quit) "<<endl;
         cout<<time<<endl;
     }
 }
 
-
+// Storing The Current Date
 string date(){
     auto currentTime = chrono::system_clock::now();
 
@@ -557,6 +571,7 @@ string date(){
     return buffer;
 }
 
+// Checking If The Value Entered Is A Number
 bool is_number(string &entery){
     for (int i = 0; i < entery.size(); i++)
     {
@@ -567,8 +582,8 @@ bool is_number(string &entery){
     return true;
 }
 
+// Substituting Cin And Checking For Number 
 int get_number(string question){
-
     int y;
     while (true){
         cout<<question;
@@ -581,20 +596,20 @@ int get_number(string question){
             system("cls");
         }
     }
-
     return y;
 }
 
-
+//Entering Smth To Continue
 void input_to_exit(){
     while(true){
-        cout<<"input to exit: ";
+        cout<<"Input To Exit : ";
         string x;
         cin>>x;
         break;
     }
 }
 
+// Storing The Users Playing Information After He Played (MapName,UserName,Date,WinStatus,TotalTime)
 void handle_endgame(string &mapName,string &username,string &time,bool &won,int &total_time){
     string result;
     if(won){
@@ -604,37 +619,32 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won,int 
     }
 
     int previous = 0;
-    for (auto & entry : filesystem::directory_iterator("./history")) {
+    for (auto & entry : filesystem::directory_iterator("./")) {
         previous ++;
     }
 
     for(int x = previous ; x >=1; x--){
-        //cout<<x << " ";
         string last_name = "./history/" + to_string(x) + ".txt";
         string new_name = "./history/" + to_string(x+1) + ".txt";
 
-        //cout << last_name << endl << new_name << endl;
         rename(last_name.c_str(),new_name.c_str());
     }
-
 
     if(filesystem::exists("./history/11.txt")){
         filesystem::remove("./history/11.txt");
     }
 
-
     string date_str = date();
-    //cout<<username << " " << mapName << " " << time << " " << date_str << result;
 
     ofstream file("./history/"+to_string(1) +".txt");
     file << username << endl << mapName << endl << time << endl << date() << endl << result;
     file.close();
 
-    //stats
-    //total games
-    //wins
-    //last win
-    //total play time
+    // Stats
+    // Total Games
+    // Wins
+    // Last Win
+    // Total Play Time
 
     if(filesystem::exists("./users/"+ username+".txt")){
         ifstream file1("./users/"+ username+".txt");
@@ -675,18 +685,14 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won,int 
 
         file2.close();
     }
-
-    //input_to_exit();
-
-
 }
 
+// A User Playing The Game With A Table
 void play(vector<vector<int>> &table,int& len,string &mapName){
     int width = table[0].size();
     int height = table.size();
     vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
     path_found.emplace_back(height-1,width-1);
-
 
     while(true){
         bool ended = false;
@@ -694,17 +700,16 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         int total;
 
         vector<pair<int, int>> passed = {
-                {0, 0}
+            {0, 0}
         };
         int x=0,y=0;
-
 
         char key;
 
         int move_index = 0;
         thread t1(stop_watch,ref(time),ref(total),ref(table),ref(passed),ref(ended));
         while (true){
-            cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) "<<endl;
+            cout<<" w(Up)  s(Down)  d(Right)  a(Left)  z(Go Back)  q(Quit) "<<endl;
             cout<<time<<endl;
 
             if(x == height-1 && y == width-1){
@@ -774,7 +779,6 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
 
         handle_endgame(mapName,username,time,won, total);
 
-
         bool try_again = false;
         while(true){
             cout<<"wanna try again?(y/n): ";
@@ -794,11 +798,9 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
             break;
         }
     }
-
-
 }
 
-
+// Getting And Adding The Maps Names And Adding Them To The 'maps' File
 string map_name(){
     system("cls");
     vector<string> names;
@@ -822,6 +824,7 @@ string map_name(){
     }
 }
 
+// Adding The Maze That The User Has Inputed Into The 'maps' File
 void import_maze(vector<vector<int>> &table, int len){
     int x = table[0].size();
     int y = table.size();
@@ -841,9 +844,6 @@ void import_maze(vector<vector<int>> &table, int len){
             break;
         }
     }
-
-
-
     ofstream map("./maps/"+name+"/map.txt");
     map << x << " " << y << endl;
     for(vector<int> &i : table){
@@ -856,6 +856,7 @@ void import_maze(vector<vector<int>> &table, int len){
     map.close();
 }
 
+// Function That Allows The User To Import A Chosen Map
 vector<vector<int>> input_maze(){
     system("cls");
     cout << "input width: ";
@@ -869,7 +870,6 @@ vector<vector<int>> input_maze(){
 
     system("cls");
     cout<<"input table: "<<endl;
-    //input the table
     vector<vector<int>> table(y,vector<int>(x,0));
     for(int i = 0; i < y ;i++){
         for(int j = 0; j < x; j++){
@@ -882,6 +882,7 @@ vector<vector<int>> input_maze(){
     return table;
 }
 
+// Reading An Existing Map From The 'maps' File
 vector<vector<int>> read_maze(int &len,string &address){
     ifstream map(address);
 
@@ -900,6 +901,7 @@ vector<vector<int>> read_maze(int &len,string &address){
     return table;
 }
 
+// Menu And The UI Shown To The User For Generating Basic Maze
 void menu_generate_basic_maze(){
     system("cls");
     int width;
@@ -935,6 +937,7 @@ void menu_generate_basic_maze(){
     input_to_exit();
 }
 
+// Menu And The UI Shown To The User For Generating Advanced Maze
 void menu_generate_advanced_maze(){
     system("cls");
     int width;
@@ -946,10 +949,6 @@ void menu_generate_advanced_maze(){
             system("cls");
         }
     }
-
-
-
-
     system("cls");
     int height;
 
@@ -973,11 +972,9 @@ void menu_generate_advanced_maze(){
         if(val >= 0 && val%2 == 0 && path_len <= max){
             break;
         }else{
-            //cout<< width << " " << height << " " << path_len << " "<< val << " " << max;
             cout<< "wrong value" << endl;
         }
     }
-
 
     int min_wall,max_wall;
     while(true){
@@ -989,7 +986,6 @@ void menu_generate_advanced_maze(){
         if(min_wall < 0){
             goto jump;
         }
-
 
         jump2:
         system("cls");
@@ -1023,16 +1019,11 @@ void menu_generate_advanced_maze(){
             cout << "wrong values"<< endl;
         }
     }
-
-
-
     system("cls");
     vector<vector<int>> table = generate_advanced_table(width,height,min_wall,max_wall,min_num,max_num,path_len);
 
-
     import_maze(table,path_len);
     system("cls");
-
 
     print_table(table);
     while(true){
@@ -1043,12 +1034,13 @@ void menu_generate_advanced_maze(){
     }
 }
 
+// Menu And The UI Shown To The User For Solving The Advanced Maze
 void menu_solve_advanced_maze(){
     system("cls");
+    // Getting The Table
     vector<vector<int>> table = input_maze();
 
     int len = get_number("input the length of the path: ");
-
 
     int y = table.size();
     int x = table[0].size();
@@ -1062,19 +1054,17 @@ void menu_solve_advanced_maze(){
         cout<<"no path found" << endl;
     }
     input_to_exit();
-
 }
 
+// Menu And The UI Shown To The User For Solving The Basic Maze
 void menu_solve_basic_maze(){
-    //input the table
+    // Getting The Table
     vector<vector<int>> table = input_maze();
 
     int x = table[0].size();
     int y = table.size();
 
-
     vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
-
 
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
@@ -1086,14 +1076,15 @@ void menu_solve_basic_maze(){
     input_to_exit();
 }
 
+// Menu And The UI Shown To The User For Selecting A Map From The Previous Stored Ones
 void menu_play_previous(){
     int len;
     string name = map_name();
-    //quit if 0
+    // Quit If 0
     if(name == "!@#$"){
         return;
     }
-    //no maps found
+    // If No Maps Were Found
     if(name == "!@#"){
         cout << "no maps found!" <<endl;
         input_to_exit();
@@ -1105,6 +1096,7 @@ void menu_play_previous(){
     play(table,len,name);
 }
 
+// Playing A New Table Given By User
 void menu_play_new(){
     vector<vector<int>> table = input_maze();
 
@@ -1116,14 +1108,15 @@ void menu_play_new(){
     play(table,len,name);
 }
 
+// Solving A Maze With Has Existed
 void menu_solve_existing_maze(){
     system("cls");
     string name = map_name();
-    //quit if 0
+    // Quit If 0
     if(name == "!@#$"){
         return;
     }
-    //no maps found
+    // If No Maps Were Found
     if(name == "!@#"){
         cout << "no maps found!" <<endl;
         input_to_exit();
@@ -1150,6 +1143,7 @@ void menu_solve_existing_maze(){
     input_to_exit();
 }
 
+// Menu For Reading The Previous Maps
 void menu_play_through_history(string &dir){
     int len;
     vector<vector<int>> table = read_maze(len,dir);
@@ -1157,6 +1151,8 @@ void menu_play_through_history(string &dir){
     string name = "No-Name";
     play(table,len,name);
 }
+
+// Menu For Reading The History Of The Games Played 
 void menu_history(){
     if(!filesystem::is_directory("./maps")){
         cout<<"no previous games";
@@ -1194,15 +1190,13 @@ void menu_history(){
         }
     }
 }
-
-
 struct Player{
     string name;
     int wins;
     int playtime;
 };
 
-
+// Getting Users Info
 void get_info(string dir,int &wins,int &play_time){
     //stats
     //total games
@@ -1216,6 +1210,7 @@ void get_info(string dir,int &wins,int &play_time){
     file.close();
 }
 
+// Comparing The Stats Of Two Players
 bool compare_sort(const Player &a,const Player &b){
     if(a.wins != b.wins){
         return a.wins > b.wins;
@@ -1223,7 +1218,7 @@ bool compare_sort(const Player &a,const Player &b){
         return a.playtime < b.playtime;
     }
 }
-
+// Leader Board
 void menu_leaderboard(){
     vector<Player> players;
     for (const auto & entry : filesystem::directory_iterator("./users/")) {
@@ -1255,7 +1250,7 @@ void menu_leaderboard(){
     input_to_exit();
 }
 
-
+// Menu For Showing The History Of The Users Info
 void menu_play_history(){
     if(!filesystem::exists("./history/1.txt")){
         cout<<"no recent games!"<<endl;
@@ -1273,7 +1268,6 @@ void menu_play_history(){
         getline(file >>ws,time);
         getline(file >>ws,date);
         getline(file >> ws,result);
-        //file>>mapName >> time >> date >> result;
 
         cout<< x <<". "<<username << "|--|" << mapName << "|--|" << time << "|--|" << result << "|--|" << date << endl;
     }
@@ -1281,26 +1275,29 @@ void menu_play_history(){
     input_to_exit();
 }
 
+// Showing Users Information Such as TotalGames,Stats,Wins,LastWin And TotalPlayTime
 void read_user(string &dir,string &username){
     system("cls");
-    //stats
-    //total games
-    //wins
-    //last win
-    //total play time
+    // Stats
+    // Total Games
+    // Wins
+    // Last Win
+    // Total Play Time
     string total_games,wins,last_win,total_play_time;
     ifstream file(dir);
 
     file >> total_games >> wins >> last_win >> total_play_time;
 
-    cout<< "name: " << username << endl;
-    cout<< "games played: " << total_games <<endl;
-    cout<< "games won: " << wins <<endl;
-    cout<< "last win: " << last_win << endl;
-    cout<< "play time: " << total_play_time << endl;
+    cout<< "Name : " << username << endl;
+    cout<< "Games Played : " << total_games <<endl;
+    cout<< "Games Won : " << wins <<endl;
+    cout<< "Last Win : " << last_win << endl;
+    cout<< "Play Time : " << total_play_time << endl;
 
     input_to_exit();
 }
+
+// Menu Shown To Get The Information Of The Users Who Have Played 
 void menu_users(){
     vector<string> names;
     while(true){
@@ -1320,8 +1317,8 @@ void menu_users(){
             return;
         }
 
-
         int option = get_number("choose a user(0 to quit): ");
+        
         if(1 <= option && option <=x){
             option --;
             string dir = "./users/" + names[option] +".txt";
@@ -1331,21 +1328,21 @@ void menu_users(){
         }
     }
 }
-
+// The Welcoming Menu Shown To The User In The Beginning
 void menu_welcome(){
     while (true){
         cout << "main menu";
         system("cls");
         string question =
                 "Maze Maverick\n"
-                "1. create a maze \n"
-                "2. solve a maze \n"
-                "3. playground \n"
-                "4. history\n"
-                "5. users \n"
-                "6. leader board \n"
-                "7. exit\n"
-                "choose an option: ";
+                "1. Create A Maze \n"
+                "2. Solve A Maze \n"
+                "3. PlayGround \n"
+                "4. History \n"
+                "5. Users \n"
+                "6. Leader Board \n"
+                "7. Exit \n"
+                "Choose An Option : ";
         int choice = get_number(question);
 
         system("cls");
@@ -1355,9 +1352,9 @@ void menu_welcome(){
                 while(true){
                     system("cls");
                     question =
-                            "1. basic maze\n"
-                            "2. advanced maze\n"
-                            "choose an option(0 to go back): ";
+                            "1. Basic Maze \n"
+                            "2. Advanced Maze \n"
+                            "Choose An Option (0 To Go Back): ";
                     choice = get_number(question);
                     system("cls");
 
@@ -1375,9 +1372,9 @@ void menu_welcome(){
                 while(true){
                     system("cls");
                     question =
-                            "1. solve a previous maze\n"
-                            "2. solve a new maze\n"
-                            "choose an option(0 to go back): ";
+                            "1. Solve A Previous Maze \n"
+                            "2. Solve A New Maze \n"
+                            "Choose An Option (0 To Go Back): ";
 
                     choice = get_number(question);
                     system("cls");
@@ -1387,9 +1384,9 @@ void menu_welcome(){
                         while(true){
                             system("cls");
                             question =
-                                    "1. basic maze\n"
-                                    "2. advanced maze\n"
-                                    "choose an option(0 to go back): ";
+                                    "1. Basic Maze \n"
+                                    "2. Advanced Maze \n"
+                                    "Choose An Option (0 To Go Back): ";
                             choice = get_number(question);
                             if (choice == 1) {
                                 menu_solve_basic_maze();
@@ -1411,9 +1408,9 @@ void menu_welcome(){
                 while(true){
                     system("cls");
                     question =
-                            "1. play a previous maze\n"
-                            "2. play a new maze\n"
-                            "choose an option(0 to go back): ";
+                            "1. Play A Previous Maze \n"
+                            "2. Play A New Maze \n"
+                            "Choose An Option (0 To Go Back): ";
                     choice = get_number(question);
 
                     system("cls");
@@ -1447,6 +1444,7 @@ void menu_welcome(){
     }
 }
 
+// Creating Folders For The History, Maps And Users Who Have Played The Games
 int main() {
     if(!filesystem::is_directory("./history")) {
         filesystem::create_directory("./history");
