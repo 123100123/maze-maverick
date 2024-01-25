@@ -454,7 +454,6 @@ void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<
     int min = 0;
     while (!ended){
         sleep(1);
-        total ++;
         if(sec <59){
             sec ++;
         }else{
@@ -466,10 +465,10 @@ void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<
         string min_str = to_string(min);
 
         if(sec_str.size() == 1){
-            sec_str = '0' + sec_str;
+            sec_str = to_string(0) + sec_str;
         }
         if(min_str.size() == 1){
-            min_str = '0' + min_str;
+            min_str = to_string(0) + min_str;
         }
         time = min_str + ":" + sec_str;
 
@@ -1047,16 +1046,29 @@ void menu_play_previous(){
 
 void menu_play_new(){
     vector<vector<int>> table = input_maze();
-    cout<<"input path length: ";
-    int len;
-    cin>>len;
+    int width = table[0].size();
+    int height = table.size();
+    int path_len;
+    while (true){
+        path_len = get_number("input path length:");
+
+        int max = width*height-1;
+        int val = path_len - (width + height - 2);
+
+        if(val >= 0 && val%2 == 0 && path_len <= max){
+            break;
+        }else{
+            cout<< "wrong value" << endl;
+        }
+    }
+
 
     system("cls");
-    export_maze(table, len);
+    export_maze(table, path_len);
 
     system("cls");
 
-    play(table,len,global_name);
+    play(table,path_len,global_name);
 }
 
 void menu_solve_existing_maze(){
