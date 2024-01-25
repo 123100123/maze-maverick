@@ -40,11 +40,39 @@ void print_table(const vector<vector<int>>& table) {
     //print the table based on the space we need
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
-            cout << setw(width) << table[i][j] << " ";
+            cout << right << setw(width) << table[i][j] << " ";
         }
         cout << endl;
     }
 }
+void print_string_table(const vector<vector<string>>& table) {
+    int rows = table.size();
+
+    //find how much the space be
+    int width = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < table[i].size(); j++) {
+            int len = table[i][j].length();
+            if (len > width) {
+                width = len;
+            }
+        }
+    }
+
+    //print the table based on the space we need
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < table[i].size(); j++) {
+            if(j > 0){
+                cout << left << setw(width) << table[i][j] << " ";
+            }else{
+                cout << left << setw(4) << table[i][j];
+            }
+
+        }
+        cout << endl;
+    }
+}
+
 
 
 bool isPairInVector(const vector<pair<int, int>>& vec, const pair<int, int>& target) {
@@ -1173,17 +1201,23 @@ void menu_leaderboard(){
     }
 
     sort(players.begin(), players.end(), compare_sort);
-    cout << "   name |--| wins |--| playtime" <<endl;
+
+    vector<vector<string>> table;
+    table.push_back({" ","name","wins","playtime"});
     int x =0;
     for(const Player &player: players){
         if(x <= 2){
             x++;
-            cout << x << ". " << player.name << " |--| " << player.wins << " |--| " << translate_time(to_string(player.playtime)) << endl;
+
+            vector<string> row = {to_string(x) + ". ",player.name,to_string(player.wins), translate_time(to_string(player.playtime))};
+            table.push_back(row);
+            //cout << x << ". " << player.name << " |--| " << player.wins << " |--| " << translate_time(to_string(player.playtime)) << endl;
         }else{
             break;
         }
     }
 
+    print_string_table(table);
     input_to_exit();
 }
 
@@ -1192,6 +1226,10 @@ void menu_play_history(){
     if(!filesystem::exists("./history/1.txt")){
         cout<<"no recent games!"<<endl;
     }
+
+    vector<vector<string>> table;
+
+    table.push_back({" ","name","maze played","playtime","state","date"});
 
     int x = 0;
     for (const auto & entry : filesystem::directory_iterator("./history/")) {
@@ -1207,8 +1245,13 @@ void menu_play_history(){
         getline(file >> ws,result);
         //file>>mapName >> time >> date >> result;
 
-        cout<< x <<". "<<username << "|--|" << mapName << "|--|" << time << "|--|" << result << "|--|" << date << endl;
+        vector<string> row = {to_string(x)+". ",username,mapName,time,result,date};
+        table.push_back(row);
+        //cout << x <<". "<<username << "|--|" << mapName << "|--|" << time << "|--|" << result << "|--|" << date << endl;
+
     }
+
+    print_string_table(table);
 
     input_to_exit();
 }
