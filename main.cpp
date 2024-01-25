@@ -583,10 +583,6 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won,int 
 
         file2.close();
     }
-
-    //input_to_exit();
-
-
 }
 
 void play(vector<vector<int>> &table,int& len,string &mapName){
@@ -1144,6 +1140,22 @@ bool compare_sort(const Player &a,const Player &b){
     }
 }
 
+string translate_time(const string total_time){
+    int sec = stoi(total_time) % 60;
+    int min = stoi(total_time) /60;
+
+    string min_str = to_string(min),sec_str(to_string(sec));
+    if(min_str.size() == 1){
+        min_str = "0" + min_str;
+    }
+    if(sec_str.size() == 1){
+        sec_str = "0" + sec_str;
+    }
+
+    return min_str + ":" + sec_str;
+}
+
+
 void menu_leaderboard(){
     vector<Player> players;
     for (const auto & entry : filesystem::directory_iterator("./users/")) {
@@ -1166,7 +1178,7 @@ void menu_leaderboard(){
     for(const Player &player: players){
         if(x <= 2){
             x++;
-            cout << x << ". " << player.name << " |--| " << player.wins << " |--| " << player.playtime << endl;
+            cout << x << ". " << player.name << " |--| " << player.wins << " |--| " << translate_time(to_string(player.playtime)) << endl;
         }else{
             break;
         }
@@ -1218,19 +1230,7 @@ void read_user(string &dir,string &username){
     cout<< "games won: " << wins <<endl;
     cout<< "last win: " << last_win << endl;
 
-    int sec = stoi(total_play_time) % 60;
-    int min = stoi(total_play_time) /60;
-
-    string min_str = to_string(min),sec_str(to_string(sec));
-    if(min_str.size() == 1){
-        min_str = "0" + min_str;
-    }
-    if(sec_str.size() == 1){
-        sec_str = "0" + sec_str;
-    }
-
-
-    cout<< "playtime: " << min_str << ":" << sec_str << endl;
+    cout<< "playtime: " << translate_time(total_play_time) << endl;
 
     input_to_exit();
 }
