@@ -616,6 +616,11 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
     int width = table[0].size();
     int height = table.size();
     vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
+    if(path_found.empty()){
+        cout << " there is no path in this maze! " << endl;
+        input_to_exit();
+        return;
+    }
     path_found.emplace_back(height-1,width-1);
 
     auto start_time = chrono::high_resolution_clock::now();
@@ -633,7 +638,6 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
 
         char key;
 
-        int move_index = 0;
         thread t1(stop_watch, ref(time), ref(table), ref(passed), ref(ended));
         while (true){
             cout<<"w(up)  s(down)  d(right)  a(left)  z(go back)  q(quit) "<<endl;
@@ -1237,10 +1241,6 @@ void menu_leaderboard(){
 
 
 void menu_play_history(){
-    if(!filesystem::exists("./history/1.txt")){
-        cout<<"no recent games!"<<endl;
-    }
-
     vector<vector<string>> table;
 
     table.push_back({" ","name","maze played","playtime","state","date"});
