@@ -1308,6 +1308,72 @@ void menu_users(){
     }
 }
 
+void create_base_folders(){
+    if(!filesystem::is_directory("./history")) {
+        filesystem::create_directory("./history");
+    }
+    if(!filesystem::is_directory("./users")) {
+        filesystem::create_directory("./users");
+    }
+    if(!filesystem::is_directory("./maps")) {
+        filesystem::create_directory("./maps");
+    }
+}
+
+bool hasFiles(const string& folderPath) {
+    for (const auto& entry : filesystem::directory_iterator(folderPath)) {
+        if (entry.is_regular_file() || entry.is_directory()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/*
+void menu_reset(){
+    while(true){
+        system("cls");
+        int choice = get_number("1. clear maps\n"
+                                "2. clear history\n"
+                                "3. reset users\n"
+                                "choose an option(0 to go back): ");
+        system("cls");
+        switch (choice) {
+            case 1:
+                if(hasFiles("./maps")){
+                    filesystem::remove("./maps");
+                }else{
+                    cout<< "no maps found" << endl;
+                }
+                input_to_exit();
+                break;
+            case 2:
+                if(filesystem::exists("./history/1.txt")) {
+                    filesystem::remove("./history");
+                    cout << "history cleared"<<endl;
+                }else{
+                    cout << "no recent games found"<<endl;
+                }
+                input_to_exit();
+                break;
+            case 3:
+                if(hasFiles("./users/")){
+                    filesystem::remove("./users");
+                }else{
+                    cout<< "no users found" << endl;
+                }
+                input_to_exit();
+                break;
+            case 0:
+                return;
+            default:
+                continue;
+        }
+        create_base_folders();
+    }
+}
+*/
+
 void menu_welcome(){
     while (true){
         cout << "main menu";
@@ -1320,7 +1386,7 @@ void menu_welcome(){
                 "4. history\n"
                 "5. users \n"
                 "6. leader board \n"
-                "7. exit\n"
+                "7. exit \n"
                 "choose an option: ";
         int choice = get_number(question);
 
@@ -1403,8 +1469,6 @@ void menu_welcome(){
                 }
                 break;
             case 4:
-                //system("cls");
-                //menu_history();
                 system("cls");
                 menu_play_history();
                 break;
@@ -1423,16 +1487,9 @@ void menu_welcome(){
     }
 }
 
+
 int main() {
-    if(!filesystem::is_directory("./history")) {
-        filesystem::create_directory("./history");
-    }
-    if(!filesystem::is_directory("./users")) {
-        filesystem::create_directory("./users");
-    }
-    if(!filesystem::is_directory("./maps")) {
-        filesystem::create_directory("./maps");
-    }
+    create_base_folders();
     menu_welcome();
     return 0;
 }
