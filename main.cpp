@@ -1338,7 +1338,7 @@ void create_base_folders(){
         filesystem::create_directory("./maps");
     }
 }
-
+/*
 bool hasFiles(const string& folderPath) {
     for (const auto& entry : filesystem::directory_iterator(folderPath)) {
         if (entry.is_regular_file() || entry.is_directory()) {
@@ -1348,7 +1348,7 @@ bool hasFiles(const string& folderPath) {
     return false;
 }
 
-/*
+
 void menu_reset(){
     while(true){
         system("cls");
