@@ -45,6 +45,8 @@ void print_table(const vector<vector<int>>& table) {
         cout << endl;
     }
 }
+
+//Printing blank string tables
 void print_string_table(const vector<vector<string>>& table) {
     int rows = table.size();
 
@@ -106,12 +108,12 @@ void print_colored_table(const vector<vector<int>>& table,vector<pair<int,int>> 
         for (int j = 0; j < table[i].size(); j++) {
             if(isPairInVector(passed_blocks,{i,j})){
                 if(color == 0){
-                    cout << GREEN <<setw(width) << table[i][j] << RESET<< " ";
+                    cout << right  << GREEN <<setw(width) << table[i][j] << RESET<< " ";
                 }else{
-                    cout << BLUE <<setw(width) << table[i][j] << RESET<< " ";
+                    cout << right  << BLUE <<setw(width) << table[i][j] << RESET<< " ";
                 }
             }else{
-                cout <<setw(width) << table[i][j]<< " ";
+                cout << right  <<setw(width) << table[i][j]<< " ";
             }
         }
         cout << endl;
@@ -139,9 +141,9 @@ void print_end_game_table(const vector<vector<int>>& table,vector<pair<int,int>>
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < table[i].size(); j++) {
                 if(isPairInVector(passed_blocks,{i,j})){
-                    cout << GREEN <<setw(width) << table[i][j] << RESET<< " ";
+                    cout << right  << GREEN <<setw(width) << table[i][j] << RESET<< " ";
                 }else{
-                    cout <<setw(width) << table[i][j]<< " ";
+                    cout << right  <<setw(width) << table[i][j]<< " ";
                 }
             }
             cout << endl;
@@ -153,12 +155,12 @@ void print_end_game_table(const vector<vector<int>>& table,vector<pair<int,int>>
             for (int j = 0; j < table[i].size(); j++) {
                 if(isPairInVector(passed_blocks,{i,j})){
                     if(isPairInVector(path,{i,j})){
-                        cout << GREEN <<setw(width) << table[i][j] << RESET<< " ";
+                        cout << right  << GREEN <<setw(width) << table[i][j] << RESET<< " ";
                     }else{
-                        cout << RED <<setw(width) << table[i][j] << RESET<< " ";
+                        cout << right  << RED <<setw(width) << table[i][j] << RESET<< " ";
                     }
                 }else{
-                    cout <<setw(width) << table[i][j]<< " ";
+                    cout << right  <<setw(width) << table[i][j]<< " ";
                 }
             }
             cout << endl;
@@ -623,6 +625,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
     int height = table.size();
     vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
     if(path_found.empty()){
+        system("cls");
         cout << " there is no path in this maze! " << endl;
         input_to_exit();
         return;
