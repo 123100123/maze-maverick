@@ -40,11 +40,39 @@ void print_table(const vector<vector<int>>& table) {
     //Printing the Table Using the Spaces Found
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < table[i].size(); j++) {
-            cout << setw(width) << table[i][j] << " ";
+            cout << right << setw(width) << table[i][j] << " ";
         }
         cout << endl;
     }
 }
+void print_string_table(const vector<vector<string>>& table) {
+    int rows = table.size();
+
+    //find how much the space be
+    int width = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < table[i].size(); j++) {
+            int len = table[i][j].length();
+            if (len > width) {
+                width = len;
+            }
+        }
+    }
+
+    //print the table based on the space we need
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < table[i].size(); j++) {
+            if(j > 0){
+                cout << left << setw(width) << table[i][j] << " ";
+            }else{
+                cout << left << setw(4) << table[i][j];
+            }
+
+        }
+        cout << endl;
+    }
+}
+
 
 // Checking if a Certain Iterated Element is in the Vector
 bool isPairInVector(const vector<pair<int, int>>& vec, const pair<int, int>& target) {
@@ -314,146 +342,50 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
         if (steps == total_steps) {
             return {{x, y}};
         }
-    } 
-    else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))){
-        //Randomizing The Order In which The Algorithm Checks -Left Right Down Up-
-        int random_num = rand_range(1,4);
+    } else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))) {
+        // randomly choose which way to check(up, down, left, or right)
 
-        // Recursive DFS Algorithm For Finding Advanced Path  
-        if(random_num == 1){             
-            // Down                           
-            if (is_valid(x + 1, y, width, height, table)) {
-                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!down_path.empty()) {
-                    down_path.insert(down_path.begin(), {x, y});
-                    return down_path;
-                }
-            }
-            // Up
-            if (is_valid(x - 1, y, width, height, table)) {
-                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!up_path.empty()) {
-                    up_path.insert(up_path.begin(), {x, y});
-                    return up_path;
-                }
-            }
-            // Right 
-            if (is_valid(x, y + 1, width, height, table)) {
-                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!right_path.empty()) {
-                    right_path.insert(right_path.begin(), {x, y});
-                    return right_path;
-                }
-            }
-            // Left
-            if (is_valid(x, y - 1, width, height, table)) {
-                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
-                if (!left_path.empty()) {
-                    left_path.insert(left_path.begin(), {x, y});
-                    return left_path;
-                }
-            }
+        vector<int> random_nums = {1, 2, 3, 4};
+        random_device rd;
+        mt19937 g(rd());
+        shuffle(random_nums.begin(), random_nums.end(), g);
 
-        }
-        else if(random_num == 2){
-            // Left
-            if (is_valid(x, y - 1, width, height, table)) {
-                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
-                if (!left_path.empty()) {
-                    left_path.insert(left_path.begin(), {x, y});
-                    return left_path;
+        for (int &num: random_nums) {
+            if (num == 1) {
+                if (is_valid(x + 1, y, width, height, table)) {
+                    vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps, total_steps, width, height,
+                                                                         table, ending_x, ending_y);
+                    if (!down_path.empty()) {
+                        down_path.insert(down_path.begin(), {x, y});
+                        return down_path;
+                    }
                 }
-            }
-            // Down
-            if (is_valid(x + 1, y, width, height, table)) {
-                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!down_path.empty()) {
-                    down_path.insert(down_path.begin(), {x, y});
-                    return down_path;
+            } else if (num == 2) {
+                if (is_valid(x - 1, y, width, height, table)) {
+                    vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps, total_steps, width, height,
+                                                                       table, ending_x, ending_y);
+                    if (!up_path.empty()) {
+                        up_path.insert(up_path.begin(), {x, y});
+                        return up_path;
+                    }
                 }
-            }
-            // Up
-            if (is_valid(x - 1, y, width, height, table)) {
-                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!up_path.empty()) {
-                    up_path.insert(up_path.begin(), {x, y});
-                    return up_path;
+            } else if (num == 3) {
+                if (is_valid(x, y + 1, width, height, table)) {
+                    vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps, total_steps, width, height,
+                                                                          table, ending_x, ending_y);
+                    if (!right_path.empty()) {
+                        right_path.insert(right_path.begin(), {x, y});
+                        return right_path;
+                    }
                 }
-            }
-            // Right
-            if (is_valid(x, y + 1, width, height, table)) {
-                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!right_path.empty()) {
-                    right_path.insert(right_path.begin(), {x, y});
-                    return right_path;
-                }
-            }
-
-        }else if(random_num == 3){
-            // Right 
-            if (is_valid(x, y + 1, width, height, table)) {
-                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!right_path.empty()) {
-                    right_path.insert(right_path.begin(), {x, y});
-                    return right_path;
-                }
-            }
-            // Left
-            if (is_valid(x, y - 1, width, height, table)) {
-                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
-                if (!left_path.empty()) {
-                    left_path.insert(left_path.begin(), {x, y});
-                    return left_path;
-                }
-            }
-            // Down
-            if (is_valid(x + 1, y, width, height, table)) {
-                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!down_path.empty()) {
-                    down_path.insert(down_path.begin(), {x, y});
-                    return down_path;
-                }
-            }
-            // Up
-            if (is_valid(x - 1, y, width, height, table)) {
-                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!up_path.empty()) {
-                    up_path.insert(up_path.begin(), {x, y});
-                    return up_path;
-                }
-            }
-
-        }else{
-            // Right
-            if (is_valid(x, y + 1, width, height, table)) {
-                vector<pair<int, int>> right_path = generate_adv_path(x, y + 1, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!right_path.empty()) {
-                    right_path.insert(right_path.begin(), {x, y});
-                    return right_path;
-                }
-            }
-            // Left
-            if (is_valid(x, y - 1, width, height, table)) {
-                vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps,width, height, table, ending_x, ending_y);
-                if (!left_path.empty()) {
-                    left_path.insert(left_path.begin(), {x, y});
-                    return left_path;
-                }
-            }
-            // Down
-            if (is_valid(x + 1, y, width, height, table)) {
-                vector<pair<int, int>> down_path = generate_adv_path(x + 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!down_path.empty()) {
-                    down_path.insert(down_path.begin(), {x, y});
-                    return down_path;
-                }
-            }
-            // Up
-            if (is_valid(x - 1, y, width, height, table)) {
-                vector<pair<int, int>> up_path = generate_adv_path(x - 1, y, steps,total_steps, width, height, table, ending_x, ending_y);
-                if (!up_path.empty()) {
-                    up_path.insert(up_path.begin(), {x, y});
-                    return up_path;
+            } else if (num == 4) {
+                if (is_valid(x, y - 1, width, height, table)) {
+                    vector<pair<int, int>> left_path = generate_adv_path(x, y - 1, steps, total_steps, width, height,
+                                                                         table, ending_x, ending_y);
+                    if (!left_path.empty()) {
+                        left_path.insert(left_path.begin(), {x, y});
+                        return left_path;
+                    }
                 }
             }
         }
@@ -526,13 +458,11 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     return table;
 }
 
-// Showing The Playing Time For Each Player Each Second
-void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<int,int>> &passed, bool &ended){
+void stop_watch(string &time, vector<vector<int>> &table,vector<pair<int,int>> &passed, bool &ended){
     int sec = 0;
     int min = 0;
     while (!ended){
         sleep(1);
-        total ++;
         if(sec <59){
             sec ++;
         }else{
@@ -544,10 +474,10 @@ void stop_watch(string &time,int &total, vector<vector<int>> &table,vector<pair<
         string min_str = to_string(min);
 
         if(sec_str.size() == 1){
-            sec_str = '0' + sec_str;
+            sec_str = to_string(0) + sec_str;
         }
         if(min_str.size() == 1){
-            min_str = '0' + min_str;
+            min_str = to_string(0) + min_str;
         }
         time = min_str + ":" + sec_str;
 
@@ -613,9 +543,9 @@ void input_to_exit(){
 void handle_endgame(string &mapName,string &username,string &time,bool &won,int &total_time){
     string result;
     if(won){
-        result = "won";
+        result = "Won";
     }else{
-        result = "lost";
+        result = "Lost";
     }
 
     int previous = 0;
@@ -692,12 +622,19 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
     int width = table[0].size();
     int height = table.size();
     vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
+    if(path_found.empty()){
+        cout << " there is no path in this maze! " << endl;
+        input_to_exit();
+        return;
+    }
     path_found.emplace_back(height-1,width-1);
 
+    auto start_time = chrono::high_resolution_clock::now();
     while(true){
         bool ended = false;
         string time;
-        int total;
+
+        int sum = 0;
 
         vector<pair<int, int>> passed = {
             {0, 0}
@@ -706,8 +643,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
 
         char key;
 
-        int move_index = 0;
-        thread t1(stop_watch,ref(time),ref(total),ref(table),ref(passed),ref(ended));
+        thread t1(stop_watch, ref(time), ref(table), ref(passed), ref(ended));
         while (true){
             cout<<" w(Up)  s(Down)  d(Right)  a(Left)  z(Go Back)  q(Quit) "<<endl;
             cout<<time<<endl;
@@ -751,19 +687,20 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         }
         ended = true;
         t1.join();
-        bool won = true;
-        if(passed.size() == path_found.size()){
-            for(int i =0; i <= passed.size()-1;i++){
-                if(passed[i] != path_found[i]){
-                    won = false;
-                    break;
-                }
-            }
-        }else{
-            won = false;
+
+        auto end_time = chrono::high_resolution_clock::now();
+        int duration = chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+
+        for(pair<int,int> &block : passed){
+            sum += table[block.first][block.second];
         }
+        sum -= table[height-1][width-1];
+        bool won = (passed.size()-1 == len) && (sum == table[height-1][width-1]);
+
+
 
         system("cls");
+
         if(won){
             cout<<"WON"<<endl;
         }else{
@@ -777,7 +714,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
         cout<<"input username: ";
         getline(cin >> ws, username);
 
-        handle_endgame(mapName,username,time,won, total);
+        handle_endgame(mapName, username, time, won, duration);
 
         bool try_again = false;
         while(true){
@@ -824,8 +761,8 @@ string map_name(){
     }
 }
 
-// Adding The Maze That The User Has Inputed Into The 'maps' File
-void import_maze(vector<vector<int>> &table, int len){
+string global_name;
+void export_maze(vector<vector<int>> &table, int len){
     int x = table[0].size();
     int y = table.size();
 
@@ -844,6 +781,9 @@ void import_maze(vector<vector<int>> &table, int len){
             break;
         }
     }
+
+    global_name = name;
+
     ofstream map("./maps/"+name+"/map.txt");
     map << x << " " << y << endl;
     for(vector<int> &i : table){
@@ -929,7 +869,7 @@ void menu_generate_basic_maze(){
     system("cls");
 
     vector<vector<int>> table = generate_basic_table(width,height);
-    import_maze(table,width+height-2);
+    export_maze(table, width + height - 2);
 
     system("cls");
     print_table(table);
@@ -949,6 +889,8 @@ void menu_generate_advanced_maze(){
             system("cls");
         }
     }
+
+
     system("cls");
     int height;
 
@@ -1022,7 +964,8 @@ void menu_generate_advanced_maze(){
     system("cls");
     vector<vector<int>> table = generate_advanced_table(width,height,min_wall,max_wall,min_num,max_num,path_len);
 
-    import_maze(table,path_len);
+
+    export_maze(table, path_len);
     system("cls");
 
     print_table(table);
@@ -1042,6 +985,11 @@ void menu_solve_advanced_maze(){
 
     int len = get_number("input the length of the path: ");
 
+    system("cls");
+
+    export_maze(table, len);
+    system("cls");
+
     int y = table.size();
     int x = table[0].size();
 
@@ -1053,6 +1001,7 @@ void menu_solve_advanced_maze(){
     }else{
         cout<<"no path found" << endl;
     }
+
     input_to_exit();
 }
 
@@ -1063,6 +1012,11 @@ void menu_solve_basic_maze(){
 
     int x = table[0].size();
     int y = table.size();
+
+    system("cls");
+
+    export_maze(table, x + y - 2);
+    system("cls");
 
     vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
 
@@ -1099,13 +1053,29 @@ void menu_play_previous(){
 // Playing A New Table Given By User
 void menu_play_new(){
     vector<vector<int>> table = input_maze();
+    int width = table[0].size();
+    int height = table.size();
+    int path_len;
+    while (true){
+        path_len = get_number("input path length:");
 
-    cout<<"input path length: ";
-    int len;
-    cin>>len;
+        int max = width*height-1;
+        int val = path_len - (width + height - 2);
 
-    string name = "No-Name";
-    play(table,len,name);
+        if(val >= 0 && val%2 == 0 && path_len <= max){
+            break;
+        }else{
+            cout<< "wrong value" << endl;
+        }
+    }
+
+
+    system("cls");
+    export_maze(table, path_len);
+
+    system("cls");
+
+    play(table,path_len,global_name);
 }
 
 // Solving A Maze With Has Existed
@@ -1130,14 +1100,15 @@ void menu_solve_existing_maze(){
     int x = table[0].size();
     int y = table.size();
 
-    vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
+    vector<pair<int, int>> result = path(0, 0, 0, 0,len, x, y, table, y - 1, x - 1);
+
 
     system("cls");
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
         print_colored_table(table,result,0);
     }else{
-        cout<<"no path found";
+        cout<<"no path found" << endl;
     }
 
     input_to_exit();
@@ -1218,7 +1189,23 @@ bool compare_sort(const Player &a,const Player &b){
         return a.playtime < b.playtime;
     }
 }
-// Leader Board
+
+string translate_time(const string total_time){
+    int sec = stoi(total_time) % 60;
+    int min = stoi(total_time) /60;
+
+    string min_str = to_string(min),sec_str(to_string(sec));
+    if(min_str.size() == 1){
+        min_str = "0" + min_str;
+    }
+    if(sec_str.size() == 1){
+        sec_str = "0" + sec_str;
+    }
+
+    return min_str + ":" + sec_str;
+}
+
+
 void menu_leaderboard(){
     vector<Player> players;
     for (const auto & entry : filesystem::directory_iterator("./users/")) {
@@ -1236,25 +1223,30 @@ void menu_leaderboard(){
     }
 
     sort(players.begin(), players.end(), compare_sort);
-    cout << "   name |--| wins |--| playtime" <<endl;
+
+    vector<vector<string>> table;
+    table.push_back({" ","name","wins","playtime"});
     int x =0;
     for(const Player &player: players){
         if(x <= 2){
             x++;
-            cout << x << ". " << player.name << " |--| " << player.wins << " |--| " << player.playtime << endl;
+
+            vector<string> row = {to_string(x) + ". ",player.name,to_string(player.wins), translate_time(to_string(player.playtime))};
+            table.push_back(row);
         }else{
             break;
         }
     }
 
+    print_string_table(table);
     input_to_exit();
 }
 
 // Menu For Showing The History Of The Users Info
 void menu_play_history(){
-    if(!filesystem::exists("./history/1.txt")){
-        cout<<"no recent games!"<<endl;
-    }
+    vector<vector<string>> table;
+
+    table.push_back({" ","name","maze played","playtime","state","date"});
 
     int x = 0;
     for (const auto & entry : filesystem::directory_iterator("./history/")) {
@@ -1269,8 +1261,13 @@ void menu_play_history(){
         getline(file >>ws,date);
         getline(file >> ws,result);
 
-        cout<< x <<". "<<username << "|--|" << mapName << "|--|" << time << "|--|" << result << "|--|" << date << endl;
+        vector<string> row = {to_string(x)+". ",username,mapName,time,result,date};
+        table.push_back(row);
+        //cout << x <<". "<<username << "|--|" << mapName << "|--|" << time << "|--|" << result << "|--|" << date << endl;
+
     }
+
+    print_string_table(table);
 
     input_to_exit();
 }
@@ -1288,11 +1285,12 @@ void read_user(string &dir,string &username){
 
     file >> total_games >> wins >> last_win >> total_play_time;
 
-    cout<< "Name : " << username << endl;
-    cout<< "Games Played : " << total_games <<endl;
-    cout<< "Games Won : " << wins <<endl;
-    cout<< "Last Win : " << last_win << endl;
-    cout<< "Play Time : " << total_play_time << endl;
+    cout<< "name: " << username << endl;
+    cout<< "games played: " << total_games <<endl;
+    cout<< "games won: " << wins <<endl;
+    cout<< "last win: " << last_win << endl;
+
+    cout<< "playtime: " << translate_time(total_play_time) << endl;
 
     input_to_exit();
 }
@@ -1328,21 +1326,87 @@ void menu_users(){
         }
     }
 }
-// The Welcoming Menu Shown To The User In The Beginning
+
+void create_base_folders(){
+    if(!filesystem::is_directory("./history")) {
+        filesystem::create_directory("./history");
+    }
+    if(!filesystem::is_directory("./users")) {
+        filesystem::create_directory("./users");
+    }
+    if(!filesystem::is_directory("./maps")) {
+        filesystem::create_directory("./maps");
+    }
+}
+
+bool hasFiles(const string& folderPath) {
+    for (const auto& entry : filesystem::directory_iterator(folderPath)) {
+        if (entry.is_regular_file() || entry.is_directory()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/*
+void menu_reset(){
+    while(true){
+        system("cls");
+        int choice = get_number("1. clear maps\n"
+                                "2. clear history\n"
+                                "3. reset users\n"
+                                "choose an option(0 to go back): ");
+        system("cls");
+        switch (choice) {
+            case 1:
+                if(hasFiles("./maps")){
+                    filesystem::remove("./maps");
+                }else{
+                    cout<< "no maps found" << endl;
+                }
+                input_to_exit();
+                break;
+            case 2:
+                if(filesystem::exists("./history/1.txt")) {
+                    filesystem::remove("./history");
+                    cout << "history cleared"<<endl;
+                }else{
+                    cout << "no recent games found"<<endl;
+                }
+                input_to_exit();
+                break;
+            case 3:
+                if(hasFiles("./users/")){
+                    filesystem::remove("./users");
+                }else{
+                    cout<< "no users found" << endl;
+                }
+                input_to_exit();
+                break;
+            case 0:
+                return;
+            default:
+                continue;
+        }
+        create_base_folders();
+    }
+}
+*/
+
 void menu_welcome(){
     while (true){
         cout << "main menu";
         system("cls");
         string question =
                 "Maze Maverick\n"
-                "1. Create A Maze \n"
-                "2. Solve A Maze \n"
-                "3. PlayGround \n"
-                "4. History \n"
-                "5. Users \n"
-                "6. Leader Board \n"
-                "7. Exit \n"
-                "Choose An Option : ";
+                "1. create a maze \n"
+                "2. solve a maze \n"
+                "3. playground \n"
+                "4. history\n"
+                "5. users \n"
+                "6. leader board \n"
+                "7. exit \n"
+                "choose an option: ";
         int choice = get_number(question);
 
         system("cls");
@@ -1352,9 +1416,9 @@ void menu_welcome(){
                 while(true){
                     system("cls");
                     question =
-                            "1. Basic Maze \n"
-                            "2. Advanced Maze \n"
-                            "Choose An Option (0 To Go Back): ";
+                            "1. creat a basic maze\n"
+                            "2. create an advanced maze\n"
+                            "choose an option(0 to go back): ";
                     choice = get_number(question);
                     system("cls");
 
@@ -1384,9 +1448,9 @@ void menu_welcome(){
                         while(true){
                             system("cls");
                             question =
-                                    "1. Basic Maze \n"
-                                    "2. Advanced Maze \n"
-                                    "Choose An Option (0 To Go Back): ";
+                                    "1. solve a basic maze\n"
+                                    "2. solve an advanced maze\n"
+                                    "choose an option(0 to go back): ";
                             choice = get_number(question);
                             if (choice == 1) {
                                 menu_solve_basic_maze();
@@ -1424,8 +1488,6 @@ void menu_welcome(){
                 }
                 break;
             case 4:
-                //system("cls");
-                //menu_history();
                 system("cls");
                 menu_play_history();
                 break;
@@ -1444,17 +1506,8 @@ void menu_welcome(){
     }
 }
 
-// Creating Folders For The History, Maps And Users Who Have Played The Games
 int main() {
-    if(!filesystem::is_directory("./history")) {
-        filesystem::create_directory("./history");
-    }
-    if(!filesystem::is_directory("./users")) {
-        filesystem::create_directory("./users");
-    }
-    if(!filesystem::is_directory("./maps")) {
-        filesystem::create_directory("./maps");
-    }
+    create_base_folders();
     menu_welcome();
     return 0;
 }
