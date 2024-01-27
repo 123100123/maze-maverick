@@ -400,7 +400,7 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
 // Generating The Advanced Table And It's Path
 vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int& min_wall,const int& max_wall,const int& min_num,const int& max_num,const int& total_steps){
     
-    int empty_num = max_num +1;  //what to fill the first iteration with
+    int empty_num = max_num;  //what to fill the first iteration with
     if(empty_num==0){
         empty_num++;
     }
