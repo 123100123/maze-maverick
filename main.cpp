@@ -2,7 +2,6 @@
 #include <random>
 #include <vector>
 #include <iomanip>
-#include <unordered_map>
 #include <algorithm>
 #include <fstream>
 #include <ctime>
@@ -14,7 +13,7 @@
 #include <unistd.h>
 #include <thread>
 #include <cctype>
-
+#include <conio.h>
 using namespace std;
 
 #define RESET   "\033[0m"
@@ -25,8 +24,7 @@ using namespace std;
 void input_to_exit(){
     while(true){
         cout<<"Input To Exit : ";
-        string x;
-        cin>>x;
+        int x = getch();
         break;
     }
 }
@@ -666,7 +664,7 @@ void play(vector<vector<int>> &table,int& len,string &mapName){
             if(x == height-1 && y == width-1){
                 break;
             }
-            cin>>key;
+            char key = getch();
             if(key=='a' || key== 'w' || key=='d' || key== 's'){
                 bool changed = false;
                 if(key == 'a' && is_valid(x,y-1,width,height,table) && !isPairInVector(passed,{x,y-1})){
