@@ -296,6 +296,7 @@ void vector_path(bool &found, int x, int y, int steps, int total_steps , int sum
     sum += table[x][y];
     copy_table[x][y] = 0;
 
+
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
         if (sum == table[ending_x][ending_y] && steps == total_steps) {
             found = true;
@@ -312,30 +313,32 @@ void vector_path(bool &found, int x, int y, int steps, int total_steps , int sum
         if (x-1>=0 && copy_table[x-1][y] != 0 && table[x-1][y] !=0 && !found) {
             vector_path(found, x - 1, y, steps, total_steps, sum, table, copy_table, ending_x, ending_y);
         }
-        if ( y-1 >= 0 && copy_table[x][y-1] != 0 && table[x][y-1] !=0 && !found) {
+        if (y-1 >= 0 && copy_table[x][y-1] != 0 && table[x][y-1] !=0 && !found) {
             vector_path(found, x, y - 1, steps, total_steps, sum, table, copy_table, ending_x, ending_y);
         }
     }
+
     if (!found){
         copy_table[x][y] = 1;
     }
 }
 
 // Getting The Said Table To Perform DFS Algorithm On
+
+// Recursive DFS Algorithm For Finding Advanced Path
 vector<pair<int,int>> path(const vector<vector<int>> &table,int &len) {
     vector<vector<int>> copy_table(table.size(),vector<int>(table[0].size(),1));
     int end_x=table.size()-1 ,end_y= table[0].size()-1;
 
-    bool won = false;
-    vector_path(won,0,0,0,len,0,table,copy_table,end_x,end_y);
+    bool found = false;
+    vector_path(found,0,0,0,len,0,table,copy_table,end_x,end_y);
+
     vector<pair<int,int>> path_found;
 
     for(int i = 0 ; i <=end_x;i++){
         for(int j = 0; j <=end_y;j++){
             if(copy_table[i][j] ==0){
-                if(table[i][j] !=0 ){
-                    path_found.emplace_back(i,j);
-                }
+                path_found.emplace_back(i,j);
             }
         }
     }
