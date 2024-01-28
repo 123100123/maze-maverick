@@ -21,7 +21,15 @@ using namespace std;
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
 #define BLUE    "\033[34m"
-
+//Entering Smth To Continue
+void input_to_exit(){
+    while(true){
+        cout<<"Input To Exit : ";
+        string x;
+        cin>>x;
+        break;
+    }
+}
 //Printing the Blank White Table
 void print_table(const vector<vector<int>>& table) {
     int rows = table.size();
@@ -284,55 +292,67 @@ bool is_valid(const int& x, const int& y, const int& width, const int& height, c
            table[x][y] != 0;
 }
 
-// Recursive DFS Algorithm For Finding Advanced Path  
-vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
-    // Going From The Start Position , Checking -left Right Up Down- For A Path
-    sum += table[x][y];
-    table[x][y] = 0;
+
+//bool is_valid_path(int x, int y,const vector<vector<int>> &table,const vector<vector<int>> &copy_table){
+//    return x>=0 && y >= 0 &&
+//           x < copy_table.size() && y < copy_table[0].size() &&
+//           copy_table[x][y] != 0 && table[x][y] !=0;
+//}
+
+void vector_path(bool &found, int x, int y, int steps, int total_steps , int sum , const vector<vector<int>> &table, vector<vector<int>> &copy_table, const int &ending_x, const int &ending_y) {
     steps += 1;
+    sum += table[x][y];
+    copy_table[x][y] = 0;
 
 
-    // Stops If End Has Been Reached
+
+
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
-        if (steps == total_steps && sum == table[ending_x][ending_y]) {
-            return {{x, y}};
+        if (sum == table[ending_x][ending_y] && steps == total_steps) {
+            found = true;
+            return;
         }
-    } else if(total_steps - steps +1  >= ((ending_x-x) + (ending_y - y))){
-        // Down
-        if (is_valid(x + 1, y, width, height, table)) {
-            vector<pair<int, int>> down_path = path(x + 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
-            if (!down_path.empty()) {
-                down_path.insert(down_path.begin(), {x, y});
-                return down_path;
-            }
+    }
+    if (total_steps - steps +1 >= ((ending_x - x) + (ending_y - y))) {
+        if (x+1 < copy_table.size() && copy_table[x+1][y] != 0 && table[x+1][y] !=0) {
+            vector_path(found, x + 1, y, steps, total_steps, sum, table, copy_table, ending_x, ending_y);
         }
-        // Right
-        if (is_valid(x, y + 1, width, height, table)) {
-            vector<pair<int, int>> right_path = path(x, y + 1, steps, sum,total_steps, width, height, table, ending_x, ending_y);
-            if (!right_path.empty()) {
-                right_path.insert(right_path.begin(), {x, y});
-                return right_path;
-            }
+        if (y+1 < copy_table[0].size() && copy_table[x][y+1] != 0 && table[x][y+1] !=0 && !found) {
+            vector_path(found, x, y + 1, steps, total_steps, sum, table, copy_table, ending_x, ending_y);
         }
-        // Up
-        if (is_valid(x - 1, y, width, height, table)) {
-            vector<pair<int, int>> up_path = path(x - 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
-            if (!up_path.empty()) {
-                up_path.insert(up_path.begin(), {x, y});
-                return up_path;
-            }
+        if (x-1>=0 && copy_table[x-1][y] != 0 && table[x-1][y] !=0 && !found) {
+            vector_path(found, x - 1, y, steps, total_steps, sum, table, copy_table, ending_x, ending_y);
         }
-        // Left
-        if (is_valid(x, y - 1, width, height, table)) {
-            vector<pair<int, int>> left_path = path(x, y - 1, steps, sum, total_steps,width, height, table, ending_x, ending_y);
-            if (!left_path.empty()) {
-                left_path.insert(left_path.begin(), {x, y});
-                return left_path;
+        if ( y-1 >= 0 && copy_table[x][y-1] != 0 && table[x][y-1] !=0 && !found) {
+            vector_path(found, x, y - 1, steps, total_steps, sum, table, copy_table, ending_x, ending_y);
+        }
+    }
+    if (!found){
+        copy_table[x][y] = 1;
+    }
+}
+// Recursive DFS Algorithm For Finding Advanced Path
+vector<pair<int,int>> path(const vector<vector<int>> &table,int &len) {
+    vector<vector<int>> copy_table(table.size(),vector<int>(table[0].size(),1));
+    int end_x=table.size()-1 ,end_y= table[0].size()-1;
+
+
+    bool won = false;
+    vector_path(won,0,0,0,len,0,table,copy_table,end_x,end_y);
+    vector<pair<int,int>> path_found;
+
+
+
+    for(int i = 0 ; i <=end_x;i++){
+        for(int j = 0; j <=end_y;j++){
+            if(copy_table[i][j] ==0){
+                if(table[i][j] !=0 ){
+                    path_found.emplace_back(i,j);
+                }
             }
         }
     }
-    // Returning An Empty Vector If A Path Not Found
-    return {};
+    return path_found;
 }
 
 
@@ -531,15 +551,7 @@ int get_number(string question){
     return y;
 }
 
-//Entering Smth To Continue
-void input_to_exit(){
-    while(true){
-        cout<<"Input To Exit : ";
-        string x;
-        cin>>x;
-        break;
-    }
-}
+
 
 // Storing The Users Playing Information After He Played (MapName,UserName,Date,WinStatus,TotalTime)
 void handle_endgame(string &mapName,string &username,string &time,bool &won,int &total_time){
@@ -623,7 +635,7 @@ void handle_endgame(string &mapName,string &username,string &time,bool &won,int 
 void play(vector<vector<int>> &table,int& len,string &mapName){
     int width = table[0].size();
     int height = table.size();
-    vector<pair<int, int>> path_found = path(0,0,0,0,len,width,height,table,height-1,width-1);
+    vector<pair<int, int>> path_found = path(table,len);
     if(path_found.empty()){
         system("cls");
         cout << " there is no path in this maze! " << endl;
@@ -996,7 +1008,8 @@ void menu_solve_advanced_maze(){
     int y = table.size();
     int x = table[0].size();
 
-    vector<pair<int,int>> result = path(0,0,0,0,len,x,y,table,y-1,x-1);
+    vector<pair<int,int>> result = path(table,len);
+    cout << result.empty();
 
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
@@ -1021,7 +1034,8 @@ void menu_solve_basic_maze(){
     export_maze(table, x + y - 2);
     system("cls");
 
-    vector<pair<int, int>> result = path(0, 0, 0, 0,x+y-2, x, y, table, y - 1, x - 1);
+    int len = x+y -2;
+    vector<pair<int, int>> result = path(table,len);
 
     if(!result.empty()){
         result.emplace_back(y-1,x-1);
@@ -1103,7 +1117,7 @@ void menu_solve_existing_maze(){
     int x = table[0].size();
     int y = table.size();
 
-    vector<pair<int, int>> result = path(0, 0, 0, 0,len, x, y, table, y - 1, x - 1);
+    vector<pair<int, int>> result = path(table,len);
 
 
     system("cls");
