@@ -290,20 +290,10 @@ bool is_valid(const int& x, const int& y, const int& width, const int& height, c
            table[x][y] != 0;
 }
 
-
-//bool is_valid_path(int x, int y,const vector<vector<int>> &table,const vector<vector<int>> &copy_table){
-//    return x>=0 && y >= 0 &&
-//           x < copy_table.size() && y < copy_table[0].size() &&
-//           copy_table[x][y] != 0 && table[x][y] !=0;
-//}
-
 void vector_path(bool &found, int x, int y, int steps, int total_steps , int sum , const vector<vector<int>> &table, vector<vector<int>> &copy_table, const int &ending_x, const int &ending_y) {
     steps += 1;
     sum += table[x][y];
     copy_table[x][y] = 0;
-
-
-
 
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
         if (sum == table[ending_x][ending_y] && steps == total_steps) {
@@ -334,12 +324,9 @@ vector<pair<int,int>> path(const vector<vector<int>> &table,int &len) {
     vector<vector<int>> copy_table(table.size(),vector<int>(table[0].size(),1));
     int end_x=table.size()-1 ,end_y= table[0].size()-1;
 
-
     bool won = false;
     vector_path(won,0,0,0,len,0,table,copy_table,end_x,end_y);
     vector<pair<int,int>> path_found;
-
-
 
     for(int i = 0 ; i <=end_x;i++){
         for(int j = 0; j <=end_y;j++){
@@ -478,6 +465,7 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
     return table;
 }
 
+// Timer For Each Player
 void stop_watch(string &time, vector<vector<int>> &table,vector<pair<int,int>> &passed, bool &ended){
     int sec = 0;
     int min = 0;
@@ -1353,60 +1341,6 @@ void create_base_folders(){
         filesystem::create_directory("./maps");
     }
 }
-/*
-bool hasFiles(const string& folderPath) {
-    for (const auto& entry : filesystem::directory_iterator(folderPath)) {
-        if (entry.is_regular_file() || entry.is_directory()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-void menu_reset(){
-    while(true){
-        system("cls");
-        int choice = get_number("1. clear maps\n"
-                                "2. clear history\n"
-                                "3. reset users\n"
-                                "choose an option(0 to go back): ");
-        system("cls");
-        switch (choice) {
-            case 1:
-                if(hasFiles("./maps")){
-                    filesystem::remove("./maps");
-                }else{
-                    cout<< "no maps found" << endl;
-                }
-                input_to_exit();
-                break;
-            case 2:
-                if(filesystem::exists("./history/1.txt")) {
-                    filesystem::remove("./history");
-                    cout << "history cleared"<<endl;
-                }else{
-                    cout << "no recent games found"<<endl;
-                }
-                input_to_exit();
-                break;
-            case 3:
-                if(hasFiles("./users/")){
-                    filesystem::remove("./users");
-                }else{
-                    cout<< "no users found" << endl;
-                }
-                input_to_exit();
-                break;
-            case 0:
-                return;
-            default:
-                continue;
-        }
-        create_base_folders();
-    }
-}
-*/
 
 void menu_welcome(){
     while (true){
