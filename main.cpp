@@ -291,12 +291,13 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
     table[x][y] = 0;
     steps += 1;
 
+
     // Stops If End Has Been Reached
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
-        if ((steps == total_steps) && (sum == table[ending_x][ending_y])) {
+        if (steps == total_steps && sum == table[ending_x][ending_y]) {
             return {{x, y}};
         }
-    } else if(total_steps-steps+1 >= ((ending_x-x) + (ending_y - y))){
+    } else if(total_steps - steps +1  >= ((ending_x-x) + (ending_y - y))){
         // Down
         if (is_valid(x + 1, y, width, height, table)) {
             vector<pair<int, int>> down_path = path(x + 1, y, steps, sum,total_steps, width, height, table, ending_x, ending_y);
@@ -339,19 +340,18 @@ vector<pair<int, int>> path(int x, int y, int steps, int sum,const int& total_st
 vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
     table[x][y] = 0;
     steps += 1;
-    // Stoping When End has Been Reached 
+    // Stoping When End has Been Reached
     if ((x + 1 == ending_x && y == ending_y) || (x == ending_x && y + 1 == ending_y)) {
         if (steps == total_steps) {
             return {{x, y}};
         }
-    } else if(steps<=total_steps && (total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))) {
+    } else if((total_steps-steps+1 >= ((ending_x-x) + (ending_y - y)))) {
         // randomly choose which way to check(up, down, left, or right)
 
         vector<int> random_nums = {1, 2, 3, 4};
         random_device rd;
         mt19937 g(rd());
         shuffle(random_nums.begin(), random_nums.end(), g);
-
         for (int &num: random_nums) {
             if (num == 1) {
                 if (is_valid(x + 1, y, width, height, table)) {
@@ -425,7 +425,7 @@ vector<vector<int>> generate_advanced_table(const int& x,const int& y,const int&
         // Remove The Coordinates Of The Path From The Vector 'empty_coordinates'
         empty_coordinates.erase(remove(empty_coordinates.begin(), empty_coordinates.end(), make_pair(step.second,step.first)), empty_coordinates.end());
 
-        // As Said In The Beggining
+        // As Said In The beginning
         int random_num = non_zero_element(min_num,max_num);
         sum += random_num;
         table[step.first][step.second] = random_num;
