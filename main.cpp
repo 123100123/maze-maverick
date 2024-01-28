@@ -290,6 +290,7 @@ bool is_valid(const int& x, const int& y, const int& width, const int& height, c
            table[x][y] != 0;
 }
 
+// Recursive DFS Algorithm For Finding Advanced Path
 void vector_path(bool &found, int x, int y, int steps, int total_steps , int sum , const vector<vector<int>> &table, vector<vector<int>> &copy_table, const int &ending_x, const int &ending_y) {
     steps += 1;
     sum += table[x][y];
@@ -319,7 +320,8 @@ void vector_path(bool &found, int x, int y, int steps, int total_steps , int sum
         copy_table[x][y] = 1;
     }
 }
-// Recursive DFS Algorithm For Finding Advanced Path
+
+// Getting The Said Table To Perform DFS Algorithm On
 vector<pair<int,int>> path(const vector<vector<int>> &table,int &len) {
     vector<vector<int>> copy_table(table.size(),vector<int>(table[0].size(),1));
     int end_x=table.size()-1 ,end_y= table[0].size()-1;
@@ -339,7 +341,6 @@ vector<pair<int,int>> path(const vector<vector<int>> &table,int &len) {
     }
     return path_found;
 }
-
 
 // Generating The Path For The Advanced Part Of The Maze Using DFS Algorithm
 vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& total_steps ,const int& width, const int& height, vector<vector<int>> table, const int& ending_x, const int& ending_y) {
