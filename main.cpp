@@ -398,7 +398,6 @@ vector<pair<int, int>> generate_adv_path(int x, int y, int steps,const int& tota
             }
         }
     }
-
     // Returing Empty Vector If A Path Not Found
     return {};
 }
